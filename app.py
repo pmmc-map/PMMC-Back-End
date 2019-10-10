@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, make_response, request, url_for
 import requests
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
@@ -15,7 +16,12 @@ class Location(db.Model):
     city = db.Column(db.String(128))
     state = db.Column(db.String(128), nullable=True)
     country = db.Column(db.String(128), nullable=False)
+    # Might need to filter visitors by month eventually
+    visit_date = db.Column(db.DateTime)
     # Add lon/lat, String?
+
+class Response(db.Model):
+    # I have no idea what the fields will be
 
 # REST API will be in format like...
 @app.route('/api/locations')
