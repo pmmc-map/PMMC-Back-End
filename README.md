@@ -5,8 +5,7 @@
 - Will contain our REST API + endpoints that will connect to our database (MySQL, Postgres?, NoSQL?..)
 
 To start Flask app for local development:  
-export FLASK_APP=app.py
-flask run # This will start a local dev server
+python3 app.py
 
 ## Front end
 - React [expand]
