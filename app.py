@@ -18,15 +18,17 @@ class Location(db.Model):
     # Add lon/lat, String?
 
 # REST API will be in format like...
-@app.route('/api/locations'):
+@app.route('/api/locations')
 def add_location():
     # Maybe location data will be given in the POST
     # Parse json POST data into location object
     # Create connection to db, db.session.add(new location)
+    pass
 
-@app.route('/api/responses'):
+@app.route('/api/responses')
 def add_response():
     # Similar to add_location
+    pass
 
 # Note: other routes involve GETting the analytics about each
 # location. /api/responses/count? Not sure how this should be setup..
