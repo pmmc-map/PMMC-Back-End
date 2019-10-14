@@ -10,8 +10,7 @@ class Location(db.Model):
     country = db.Column(db.String(128), nullable=True)
     # Might need to filter visitors by month eventually
     visit_date = db.Column(db.DateTime, nullable=True)
-    # Add lon/lat, String?
 
-#class Response(db.Model):
+class Response(db.Model):
     # I have no idea what the fields will be
- #   pass
+    rid = db.Column(db.Integer, primary_key=True)
