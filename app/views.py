@@ -73,10 +73,43 @@ def locations():
         all_locations = []
         for location in Location.query.all():
             location_json = {"lat": location.lat, "long": location.long, "city": location.city,
-                              "state": location.state, "country": location.country}
+                              "state": location.state, "country": location.country, "visit_date": location.visit_date}
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
     return "No request sent"
+
+@app.route('/api/locations/country/<country_name>', methods=['GET'])
+def country(country_name):
+    if request.method == "GET":
+        # This is like querying the database
+        all_locations = []
+        for location in Location.query.filter_by(country=country_name).all():
+            location_json = {"lat": location.lat, "long": location.long, "city": location.city,
+                              "state": location.state, "country": location.country, "visit_date": location.visit_date}
+            all_locations.append(location_json)
+        return jsonify({'locations': all_locations}) 
+
+@app.route('/api/locations/city/<city_name>', methods=['GET'])
+def city(city_name):
+    if request.method == "GET":
+        # This is like querying the database
+        all_locations = []
+        for location in Location.query.filter_by(city=city_name).all():
+            location_json = {"lat": location.lat, "long": location.long, "city": location.city,
+                              "state": location.state, "country": location.country, "visit_date": location.visit_date}
+            all_locations.append(location_json)
+        return jsonify({'locations': all_locations})
+
+@app.route('/api/locations/state/<state_name>', methods=['GET'])
+def state(state_name):
+    if request.method == "GET":
+        # This is like querying the database
+        all_locations = []
+        for location in Location.query.filter_by(state=state_name).all():
+            location_json = {"lat": location.lat, "long": location.long, "city": location.city,
+                              "state": location.state, "country": location.country, "visit_date": location.visit_date}
+            all_locations.append(location_json)
+        return jsonify({'locations': all_locations})
 
 @app.route('/api/responses')
 def responses():
