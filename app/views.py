@@ -16,6 +16,7 @@ def get_location_data(lat, long):
     vars = {"key": API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
     req_url = BASE_URL + urllib.parse.urlencode(vars)
     response = requests.get(req_url).json()
+    city,state,country = None,None,None
 
     if len(response["results"]) == 0:
         raise InvalidLocationError
@@ -52,9 +53,6 @@ def pending_pin():
 # REST API will be in format like...
 @app.route('/api/locations', methods=['GET', 'POST'])
 def locations():
-    # Still need to account for nullable locations
-    # Probably a sequence of statements like "if 'city' in request.json..." etc
-    # Some locations might not have associated city, state, county (in the ocean, in another country...)
     if request.method == "POST":
         lat_data = request.json["lat"]
         long_data = request.json["long"]
@@ -67,11 +65,12 @@ def locations():
         db.session.add(location_db)
         db.session.commit()
 
-        if city:
+        city_count, state_count, country_count = 0,0,0
+        if city_data:
             city_count = Location.query.filter_by(city=city_data).count()
-        if state:
+        if state_data:
             state_count = Location.query.filter_by(state=state_data).count()
-        if country:
+        if country_data:
             country_count = Location.query.filter_by(country=country_data).count()
         return jsonify(success=True, city=city_data, state=state_data, country=country_data, 
                        city_count = city_count, state_count = state_count, country_count = country_count,
