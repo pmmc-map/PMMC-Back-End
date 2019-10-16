@@ -66,7 +66,16 @@ def locations():
                                 visit_date = datetime.datetime.now())
         db.session.add(location_db)
         db.session.commit()
-        return jsonify(success=True, message="Added to database")
+
+        if city:
+            city_count = Location.query.filter_by(city=city_data).count()
+        if state:
+            state_count = Location.query.filter_by(state=state_data).count()
+        if country:
+            country_count = Location.query.filter_by(country=country_data).count()
+        return jsonify(success=True, city=city_data, state=state_data, country=country_data, 
+                       city_count = city_count, state_count = state_count, country_count = country_count,
+                       message="Added to database")
 
     if request.method == "GET":
         # This is like querying the database
