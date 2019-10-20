@@ -3,8 +3,8 @@ from app.models import Location
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 
-API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
-BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
+GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
+GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
 
 class InvalidLocationError(Exception):
     pass
@@ -13,8 +13,8 @@ class InWaterError(Exception):
     pass
 
 def get_location_data(lat, long):
-    vars = {"key": API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
-    req_url = BASE_URL + urllib.parse.urlencode(vars)
+    vars = {"key": GEO_API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
+    req_url = GEO_BASE_URL + urllib.parse.urlencode(vars)
     response = requests.get(req_url).json()
     city,state,country = None,None,None
 
@@ -31,6 +31,8 @@ def get_location_data(lat, long):
         raise InWaterError
     if "unknown" in response["results"][0]["components"]:
         # Check if this is actually invalid
+        # This is actually not invalid but we need to check for
+        # parts of the ocean that aren't a "body of water"
         pass
     return city,state,country
 
@@ -65,6 +67,7 @@ def locations():
         db.session.add(location_db)
         db.session.commit()
 
+        # Calculate counts of city/state/country for front end analytics
         city_count, state_count, country_count = 0,0,0
         if city_data:
             city_count = Location.query.filter_by(city=city_data).count()
@@ -77,7 +80,7 @@ def locations():
                        message="Added to database")
 
     if request.method == "GET":
-        # This is like querying the database
+        # This is like querying the database for all pinned locations
         all_locations = []
         for location in Location.query.all():
             location_json = {"lat": location.lat, "long": location.long, "city": location.city,
@@ -90,6 +93,7 @@ def locations():
 def country(country_name):
     if request.method == "GET":
         # This is like querying the database
+        # Equivalent to SELECT * FROM Location WHERE country = country_name
         all_locations = []
         for location in Location.query.filter_by(country=country_name).all():
             location_json = {"lat": location.lat, "long": location.long, "city": location.city,
@@ -100,7 +104,6 @@ def country(country_name):
 @app.route('/api/locations/city/<city_name>', methods=['GET'])
 def city(city_name):
     if request.method == "GET":
-        # This is like querying the database
         all_locations = []
         for location in Location.query.filter_by(city=city_name).all():
             location_json = {"lat": location.lat, "long": location.long, "city": location.city,
@@ -111,7 +114,6 @@ def city(city_name):
 @app.route('/api/locations/state/<state_name>', methods=['GET'])
 def state(state_name):
     if request.method == "GET":
-        # This is like querying the database
         all_locations = []
         for location in Location.query.filter_by(state=state_name).all():
             location_json = {"lat": location.lat, "long": location.long, "city": location.city,
