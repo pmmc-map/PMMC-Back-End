@@ -83,7 +83,7 @@ def locations():
         # This is like querying the database for all pinned locations
         all_locations = []
         for location in Location.query.all():
-            location_json = {"lat": location.lat, "long": location.long, "city": location.city,
+            location_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "city": location.city,
                               "state": location.state, "country": location.country, "visit_date": location.visit_date}
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
@@ -96,7 +96,7 @@ def country(country_name):
         # Equivalent to SELECT * FROM Location WHERE country = country_name
         all_locations = []
         for location in Location.query.filter_by(country=country_name).all():
-            location_json = {"lat": location.lat, "long": location.long, "city": location.city,
+            location_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "city": location.city,
                               "state": location.state, "country": location.country, "visit_date": location.visit_date}
             all_locations.append(location_json)
         return jsonify({'locations': all_locations}) 
@@ -106,7 +106,7 @@ def city(city_name):
     if request.method == "GET":
         all_locations = []
         for location in Location.query.filter_by(city=city_name).all():
-            location_json = {"lat": location.lat, "long": location.long, "city": location.city,
+            location_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "city": location.city,
                               "state": location.state, "country": location.country, "visit_date": location.visit_date}
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
@@ -116,7 +116,7 @@ def state(state_name):
     if request.method == "GET":
         all_locations = []
         for location in Location.query.filter_by(state=state_name).all():
-            location_json = {"lat": location.lat, "long": location.long, "city": location.city,
+            location_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "city": location.city,
                               "state": location.state, "country": location.country, "visit_date": location.visit_date}
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
