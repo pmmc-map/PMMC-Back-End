@@ -2,6 +2,7 @@ from app import app, db
 from app.models import Location
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
+from flask_cors import CORS, cross_origin
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
@@ -20,7 +21,7 @@ def get_location_data(lat, long):
 
     if len(response["results"]) == 0:
         raise InvalidLocationError
-        
+
     if "city" in response["results"][0]["components"]:
         city = response["results"][0]["components"]["city"]
     if "county" in response["results"][0]["components"] and not city:
@@ -56,6 +57,7 @@ def pending_pin():
 
 # REST API will be in format like...
 @app.route('/api/locations', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
 def locations():
     if request.method == "POST":
         lat_data = request.json["lat"]
@@ -77,7 +79,7 @@ def locations():
             state_count = Location.query.filter_by(state=state_data).count()
         if country_data:
             country_count = Location.query.filter_by(country=country_data).count()
-        return jsonify(success=True, city=city_data, state=state_data, country=country_data, 
+        return jsonify(success=True, city=city_data, state=state_data, country=country_data,
                        city_count = city_count, state_count = state_count, country_count = country_count,
                        message="Added to database")
 
@@ -92,6 +94,7 @@ def locations():
     return "No request sent"
 
 @app.route('/api/locations/country/<country_name>', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def country(country_name):
     if request.method == "GET":
         # This is like querying the database
@@ -101,7 +104,7 @@ def country(country_name):
             location_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "city": location.city,
                               "state": location.state, "country": location.country, "visit_date": location.visit_date}
             all_locations.append(location_json)
-        return jsonify({'locations': all_locations}) 
+        return jsonify({'locations': all_locations})
 
 @app.route('/api/locations/city/<city_name>', methods=['GET'])
 def city(city_name):
@@ -114,6 +117,7 @@ def city(city_name):
         return jsonify({'locations': all_locations})
 
 @app.route('/api/locations/state/<state_name>', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def state(state_name):
     if request.method == "GET":
         all_locations = []
@@ -124,6 +128,7 @@ def state(state_name):
         return jsonify({'locations': all_locations})
 
 @app.route('/api/responses')
+@cross_origin(supports_credentials=True)
 def responses():
     # Similar to add_location
     return "Responses endpoint"
