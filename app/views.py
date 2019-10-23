@@ -23,6 +23,8 @@ def get_location_data(lat, long):
         
     if "city" in response["results"][0]["components"]:
         city = response["results"][0]["components"]["city"]
+    if "county" in response["results"][0]["components"] and not city:
+        city = response["results"][0]["components"]["county"]
     if "state" in response["results"][0]["components"]:
         state = response["results"][0]["components"]["state"]
     if "country" in response["results"][0]["components"]:
