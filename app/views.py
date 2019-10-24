@@ -3,9 +3,12 @@ from app.models import Location
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
+from math import cos, asin, sqrt
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
+PMMC_LAT = 33.5729488
+PMMC_LONG = -117.7624671
 
 class InvalidLocationError(Exception):
     pass
@@ -38,6 +41,11 @@ def get_location_data(lat, long):
         # parts of the ocean that aren't a "body of water"
         pass
     return city,state,country
+
+def calculate_distance(lat1, lon1, lat2, lon2):
+    p = 0.017453292519943295
+    a = 0.5 - cos((lat2 - lat1) * p)/2 + cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2
+    return 12742 * asin(sqrt(a)) * 0.621371
 
 
 # Sends city, state, location data for a pending pin
@@ -79,9 +87,12 @@ def locations():
             state_count = Location.query.filter_by(state=state_data).count()
         if country_data:
             country_count = Location.query.filter_by(country=country_data).count()
+
+        distance = calculate_distance(PMMC_LAT, PMMC_LONG, lat_data, long_data)
         return jsonify(success=True, city=city_data, state=state_data, country=country_data,
                        city_count = city_count, state_count = state_count, country_count = country_count,
-                       message="Added to database")
+                       message="Added to database", distance = distance)
+                       
 
     if request.method == "GET":
         # This is like querying the database for all pinned locations
