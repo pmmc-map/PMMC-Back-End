@@ -20,7 +20,7 @@ class AnimalLocations(db.Model):
     location_name = db.Column(db.String(128), nullable=False) # name of the place animal was placed
     placement_year = db.Column(db.Integer, nullable=True) # Year the animal was placed
     animal_type = db.Column(db.String(128), nullable=True) # Type of animal (eg. seal, sea lion, harbor seal)
-    animal_notes = db.Column(b.String(128), nullable=True) # Any notes or facts about animal
+    animal_notes = db.Column(db.String(128), nullable=True) # Any notes or facts about animal
 
 class Response(db.Model):
     # I have no idea what the fields will be
