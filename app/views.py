@@ -1,6 +1,6 @@
 from app import app, db
 from app.models import Location
-from app.survey import Question, Response
+from app.survey import Question, Response, Option
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
@@ -181,20 +181,40 @@ def question(qid):
 # TODO: Again, decide where this POST should live
 @app.route('/api/responses/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
-def response(qid):
+def responses(qid):
     if request.method == "GET":
         all_responses = []
-        # This should only have one response, but displaying all for debugging
         for response in Response.query.filter_by(qid=qid):
             response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
             all_responses.append(response_json)
-        return jsonify({'response': all_responses})
+        return jsonify({'responses': all_responses})
     if request.method == "POST":
         response_text = request.json["text"]
         response = Response(text = response_text, qid=qid)
         db.session.add(response)
         db.session.commit()
         return jsonify(success=True)
+
+# GET options associated with a question_id
+# TODO: Again, decide where this POST should live
+@app.route('/api/options/<qid>', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def options(qid):
+    if request.method == "GET":
+        all_options = []
+        for option in Option.query.filter_by(qid=qid):
+            option_json = {"oid": option.oid, "qid": option.qid, "text": option.text}
+            all_options.append(option_json)
+        return jsonify({'options': all_options})
+    if request.method == "POST":
+        option_text = request.json["text"]
+        option = Option(text = option_text, qid=qid)
+        db.session.add(option)
+        db.session.commit()
+        return jsonify(success=True)
+        
+
+
 
 # Note: other routes involve GETting the analytics about each
 # location. /api/responses/count? Not sure how this should be setup..
