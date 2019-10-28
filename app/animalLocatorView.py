@@ -3,7 +3,7 @@ from app.models import AnimalLocations
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 
-@app.route('api/animal_locations', methods=['GET', 'POST'])
+@app.route('/api/animal_locations', methods=['GET', 'POST'])
 
 def animalLocations():
     if request.method == "POST":
