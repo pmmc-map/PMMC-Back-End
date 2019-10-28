@@ -3,6 +3,8 @@ from app.models import AnimalLocations
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 
+@app.route('api/animal_locations', methods=['Get', 'POST'])
+@cross_origin(supports_credentials=True)
 def animalLocations():
     if request.method == "POST":
         lat_data = request.json["lat"]
