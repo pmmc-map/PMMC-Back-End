@@ -1,5 +1,6 @@
 from app import app, db
 from app.models import Location
+from app.survey import Question, Response
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
@@ -42,6 +43,8 @@ def get_location_data(lat, long):
         pass
     return city,state,country
 
+# This is an implementation of the Haversine formula for distances on a globe
+# Distance returned is in miles, as a crow flies
 def calculate_distance(lat1, lon1, lat2, lon2):
     p = 0.017453292519943295
     a = 0.5 - cos((lat2 - lat1) * p)/2 + cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2
@@ -63,7 +66,8 @@ def pending_pin():
 
         return jsonify(success=True, city=city_data, state=state_data, country=country_data)
 
-# REST API will be in format like...
+# GETs all pin location data
+# POST a new location to the pin location database table
 @app.route('/api/locations', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
 def locations():
@@ -104,6 +108,7 @@ def locations():
         return jsonify({'locations': all_locations})
     return "No request sent"
 
+# GETs location based on country name
 @app.route('/api/locations/country/<country_name>', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def country(country_name):
@@ -138,11 +143,58 @@ def state(state_name):
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
 
-@app.route('/api/responses')
+
+# GETs all questions in questions database table
+@app.route('/api/questions', methods=['GET'])
 @cross_origin(supports_credentials=True)
-def responses():
-    # Similar to add_location
-    return "Responses endpoint"
+def all_questions():
+    if request.method == "GET":
+        all_questions = []
+        for question in Question.query.all():
+            question_json = {"qid": question.qid, "text": question.text}
+            all_questions.append(question_json)
+        return jsonify({'questions': all_questions})
+
+
+# GET question based on question_id, return json of question
+# POST to question by adding a Response associated with that question_id
+# TODO: Should this POST be in /questions or /responses? In both for now
+@app.route('/api/questions/<qid>', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def question(qid):
+    if request.method == "GET":
+        all_questions = []
+        # This should only have one response, but displaying all for debugging
+        for question in Question.query.filter_by(qid=qid):
+            question_json = {"qid": question.qid, "text": question.text}
+            all_questions.append(question_json)
+        return jsonify({'question': all_questions})
+    if request.method == "POST":
+        response_text = request.json["text"]
+        response = Response(text = response_text, qid=qid)
+        db.session.add(response)
+        db.session.commit()
+        return jsonify(success=True)
+
+# GET responses associated with a question_id
+# POST response associated with a question_id
+# TODO: Again, decide where this POST should live
+@app.route('/api/responses/<qid>', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def response(qid):
+    if request.method == "GET":
+        all_responses = []
+        # This should only have one response, but displaying all for debugging
+        for response in Response.query.filter_by(qid=qid):
+            response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
+            all_responses.append(response_json)
+        return jsonify({'response': all_responses})
+    if request.method == "POST":
+        response_text = request.json["text"]
+        response = Response(text = response_text, qid=qid)
+        db.session.add(response)
+        db.session.commit()
+        return jsonify(success=True)
 
 # Note: other routes involve GETting the analytics about each
 # location. /api/responses/count? Not sure how this should be setup..
