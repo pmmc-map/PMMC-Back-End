@@ -149,7 +149,7 @@ def state(state_name):
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
 
-@app.route('/api/locations/city', methods=['POST'])
+@app.route('/api/images/city', methods=['POST'])
 def city_image():
 	if request.method == "POST":
 		if request.headers['Content-Type'] == 'application/json':
@@ -171,10 +171,11 @@ def all_questions():
             all_questions.append(question_json)
         return jsonify({'questions': all_questions})
 
-
 # GET question based on question_id, return json of question
 # POST to question by adding a Response associated with that question_id
 # TODO: Should this POST be in /questions or /responses? In both for now
+# TODO: POST should change the question in the database based on the qid. 
+#       - Need to figure out how to update existing db entry
 @app.route('/api/questions/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
 def question(qid):
