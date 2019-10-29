@@ -1,3 +1,4 @@
+
 from app import app, db
 from app.models import Location
 from flask import jsonify, make_response, request, url_for
@@ -5,6 +6,12 @@ import requests, datetime, urllib
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
+
+IMAGE_API_CX = "006863879937283909592:yqzj4vzeazr"
+IMAGE_API_KEY = 'AIzaSyBD8SsoOb7ZbeKM-_4D1dPvXRQggTqLoR8'
+IMAGE_API_URL = 'https://www.googleapis.com/customsearch/v1'
+FULL_URL = IMAGE_API_URL + "?key=" + IMAGE_API_KEY + "&cx=" + IMAGE_API_CX + "&q="
+
 
 class InvalidLocationError(Exception):
     pass
@@ -120,6 +127,17 @@ def state(state_name):
                               "state": location.state, "country": location.country, "visit_date": location.visit_date}
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
+
+@app.route('/api/locations/city', methods=['POST'])
+def city_image():
+	if request.method == "POST":
+		if request.headers['Content-Type'] == 'application/json':
+			city = request.json['city']
+			search_type = "&searchType=image"
+			img_size = "&imgSize=large"
+			req_url = FULL_URL + city + search_type + img_size
+			response = {"city": requests.get(req_url).json()['items'][0]['link']}
+			return jsonify(response), 200
 
 @app.route('/api/responses')
 def responses():
