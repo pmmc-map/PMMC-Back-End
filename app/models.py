@@ -22,6 +22,3 @@ class AnimalLocations(db.Model):
     animal_type = db.Column(db.String(128), nullable=True) # Type of animal (eg. seal, sea lion, harbor seal)
     animal_notes = db.Column(db.String(128), nullable=True) # Any notes or facts about animal
 
-class Response(db.Model):
-    # I have no idea what the fields will be
-    rid = db.Column(db.Integer, primary_key=True)
