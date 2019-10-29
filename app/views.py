@@ -160,11 +160,6 @@ def city_image():
 			response = {"city": requests.get(req_url).json()['items'][0]['link']}
 			return jsonify(response), 200
 
-@app.route('/api/responses')
-def responses():
-    # Similar to add_location
-    return "Responses endpoint"
-
 # GETs all questions in questions database table
 @app.route('/api/questions', methods=['GET'])
 @cross_origin(supports_credentials=True)
