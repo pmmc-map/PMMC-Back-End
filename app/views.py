@@ -114,6 +114,18 @@ def locations():
         return jsonify({'locations': all_locations})
     return "No request sent"
 
+@app.route('/api/locations/counts', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def location_counts():
+    total_visitors = Location.query.count()
+    country_count = Location.query.with_entities(Location.country).distinct().count()
+    states = set()
+    for l in Location.query.all():
+        if l.country == "USA":
+            states.add(l.state)
+    state_count = len(states)
+    return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unique_counties=country_count)
+
 # GETs location based on country name
 @app.route('/api/locations/country/<country_name>', methods=['GET'])
 @cross_origin(supports_credentials=True)
