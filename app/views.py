@@ -156,7 +156,7 @@ def city_image():
 			city = request.json['city']
 			search_type = "&searchType=image"
 			img_size = "&imgSize=large"
-			req_url = FULL_URL + city + search_type + img_size
+			req_url = FULL_URL + city + " landmark" + search_type + img_size
 			response = {"city": requests.get(req_url).json()['items'][0]['link']}
 			return jsonify(response), 200
 
