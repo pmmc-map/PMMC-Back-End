@@ -1,6 +1,6 @@
 
 from app import app, db
-from app.models import Location
+from app.models import Location, Rescues, AnimalLocations
 from app.survey import Question, Response, Option
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
@@ -157,6 +157,7 @@ def city_image():
 			search_type = "&searchType=image"
 			img_size = "&imgSize=large"
 			req_url = FULL_URL + city + " landmark" + search_type + img_size
+			return requests.get(req_url).json()
 			response = {"city": requests.get(req_url).json()['items'][0]['link']}
 			return jsonify(response), 200
 
@@ -229,6 +230,43 @@ def options(qid):
         db.session.add(option)
         db.session.commit()
         return jsonify(success=True)
+
+
+@app.route('/admin/email', methods=["POST"])
+@cross_origin(supports_credentials=True)
+def email():
+    ## TODO: email that attaches CSV files
+    if request.method == "POST":
+        if "email_address" in request.json:
+            to_email = request.json["email_address"]
+        else:
+            return jsonify(success=False)
+        subject = "Map Application Data " + str(datetime.datetime.now().strftime("%Y-%m-%d"))
+        body = "Attached are the spreadsheet files reporting new pins, visits to the donation site, and survey responses!"
+
+@app.route('/admin/rescues', methods=["POST", "GET"])
+@cross_origin(supports_credentials=True)
+def rescue_count():
+    if request.method == "POST":
+        if "new_count" in request.json:
+            new_count = request.json["new_count"]
+        else:
+            return jsonify(success=False)
+        try:
+            patients = Rescues.query.filter_by(rescue_key="Patients").first()
+            patients.rescue_count = new_count
+            db.session.commit()
+            return jsonify(success=True, message="Total patients now inscreased to " + str(new_count))
+        except Exception as e:
+            return jsonify(success=False, message=str(e))
+    if request.method == "GET":
+        try:
+            patients = Rescues.query.filter_by(rescue_key="Patients").first()
+            return jsonify(success=True, patient_count = patients.rescue_count)
+        except Exception as e:
+            return jsonify(success=False, message=str(e))
+        
+        
         
 # Note: other routes involve GETting the analytics about each
 # location. /api/responses/count? Not sure how this should be setup..
