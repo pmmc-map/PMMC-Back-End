@@ -119,11 +119,13 @@ def locations():
 def location_counts():
     total_visitors = Location.query.count()
     country_count = Location.query.with_entities(Location.country).distinct().count()
-    states = set()
-    for l in Location.query.all():
-        if l.country == "USA":
-            states.add(l.state)
-    state_count = len(states)
+    state_count = Location.query.filter_by(country="USA").with_entities(Location.state).distinct().count()
+    # Confirm that these are equivalent
+    # states = set()
+    # for l in Location.query.all():
+    #     if l.country == "USA":
+    #         states.add(l.state)
+    # state_count = len(states)
     return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unique_counties=country_count)
 
 # GETs location based on country name
@@ -183,6 +185,9 @@ def all_questions():
             question_json = {"qid": question.qid, "text": question.text}
             all_questions.append(question_json)
         return jsonify({'questions': all_questions})
+    if request.method == "POST":
+        # Option to add a question will come later. Nice to have
+        return jsonify(success=True, message="New question added")     
 
 # GET question based on question_id, return json of question
 # POST to question by adding a Response associated with that question_id
@@ -200,10 +205,13 @@ def question(qid):
             all_questions.append(question_json)
         return jsonify({'question': all_questions})
     if request.method == "POST":
-        response_text = request.json["text"]
-        response = Response(text = response_text, qid=qid)
-        db.session.add(response)
-        db.session.commit()
+        # For now, just an updated question
+        if updated_question in request.json:
+            updated_question = request.json["updated_question"]
+            question = Question.query.filter_by(qid = qid).first()
+            question.text = updated_question
+        else:
+            return jsonify(success=False, message = "No updated question sent")
         return jsonify(success=True)
 
 # GET responses associated with a question_id
