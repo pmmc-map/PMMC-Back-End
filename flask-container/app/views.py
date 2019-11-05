@@ -1,11 +1,12 @@
 
 from app import app, db
-from app.models import Location
+from app.models import Location, CityImages
 from app.survey import Question, Response, Option
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
+import urllib
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
@@ -149,18 +150,39 @@ def state(state_name):
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
 
-@app.route('/api/locations/city', methods=['POST'])
+@app.route('/api/locations/city', methods=['GET'])
 def city_image():
-	if request.method == "POST":
-		if request.headers['Content-Type'] == 'application/json':
-			city = request.json['city']
-			search_type = "&searchType=image"
-			img_size = "&imgSize=large"
-			req_url = FULL_URL + city + search_type + img_size
-			response = {"city": requests.get(req_url).json()['items'][0]['link']}
-			return jsonify(response), 200
+    if request.method == "GET":
+        city = request.args.get('city').lower()
+        try:
+            result = db.session.query(CityImages).filter_by(query=city)
+            db.session.commit() 
+            result = result.first().image
+        except:
+            search_type = "&searchType=image"
+            img_size = "&imgSize=large"
+            req_url = FULL_URL + city.replace(' ','%20') + '%20city%20view%20landmark' + search_type + img_size
+            returned_url = requests.get(req_url).json()
+            try:
+                returned_url = returned_url['items'][0]['link']
 
-@app.route('/api/responses')
+                req = urllib.request.Request(returned_url, headers={'User-Agent' : "Magic Browser"}) 
+                with urllib.request.urlopen(req) as f:
+                    result = f.read()
+                
+                db.session.add(CityImages(query=city, image=result))
+                db.session.commit()
+            except:
+                result = db.session.query(CityImages).filter_by(query='seal')
+                db.session.commit() 
+                result = result.first().image
+
+        response = make_response(result)
+        response.headers.set('Content-Type', 'image/jpeg')
+        response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
+        return response, 200 
+
+@app.route('/api/responses') 
 def responses():
     # Similar to add_location
     return "Responses endpoint"
@@ -202,7 +224,7 @@ def question(qid):
 # TODO: Again, decide where this POST should live
 @app.route('/api/responses/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
-def responses(qid):
+def responsee(qid):
     if request.method == "GET":
         all_responses = []
         for response in Response.query.filter_by(qid=qid):

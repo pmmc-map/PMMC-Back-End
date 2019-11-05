@@ -11,6 +11,10 @@ class Location(db.Model):
     # Might need to filter visitors by month eventually
     visit_date = db.Column(db.DateTime, nullable=True)
 
-class Response(db.Model):
+class Responsee(db.Model):
     # I have no idea what the fields will be
     rid = db.Column(db.Integer, primary_key=True)
+
+class CityImages(db.Model):
+    query = db.Column(db.String(128), primary_key=True)
+    image = db.Column(db.LargeBinary(1000000), nullable=False)
