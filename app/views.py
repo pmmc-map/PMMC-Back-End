@@ -102,7 +102,7 @@ def locations():
         return jsonify(success=True, city=city_data, state=state_data, country=country_data,
                        city_count = city_count, state_count = state_count, country_count = country_count,
                        message="Added to database", distance = distance)
-                       
+
 
     if request.method == "GET":
         # This is like querying the database for all pinned locations
@@ -163,17 +163,39 @@ def state(state_name):
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
 
+@cross_origin(supports_credentials=True)
 @app.route('/api/images/city', methods=['POST'])
 def city_image():
-    if request.method == "POST":
-        if request.headers['Content-Type'] == 'application/json':
-            city = request.json['city']
+    if request.method == "GET":
+        city = request.args.get('city').lower()
+        try:
+            result = db.session.query(CityImages).filter_by(query=city)
+            db.session.commit()
+            result = result.first().image
+        except:
             search_type = "&searchType=image"
             img_size = "&imgSize=large"
-            req_url = FULL_URL + city + " landmark" + search_type + img_size
-            return requests.get(req_url).json()
-        response = {"city": requests.get(req_url).json()['items'][0]['link']}
-        return jsonify(response), 200
+            req_url = FULL_URL + city.replace(' ','%20') + '%20city%20view%20landmark' + search_type + img_size
+            returned_url = requests.get(req_url).json()
+            try:
+                returned_url = returned_url['items'][0]['link']
+
+                req = urllib.request.Request(returned_url, headers={'User-Agent' : "Magic Browser"})
+                with urllib.request.urlopen(req) as f:
+                    result = f.read()
+
+                db.session.add(CityImages(query=city, image=result))
+                db.session.commit()
+            except:
+                result = db.session.query(CityImages).filter_by(query='seal')
+                db.session.commit()
+                result = result.first().image
+
+        response = make_response(result)
+        response.headers.set('Content-Type', 'image/jpeg')
+        response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
+        return response, 200
+
 
 # GETs all questions in questions database table
 @app.route('/api/questions', methods=['GET', 'POST'])
@@ -192,12 +214,12 @@ def all_questions():
         question = Question(qid=qid, text=question_text)
         db.session.add(question)
         db.session.commit()
-        return jsonify(success=True, message="New question added")     
+        return jsonify(success=True, message="New question added")
 
 # GET question based on question_id, return json of question
 # POST to question by adding a Response associated with that question_id
 # TODO: Should this POST be in /questions or /responses? In both for now
-# TODO: POST should change the question in the database based on the qid. 
+# TODO: POST should change the question in the database based on the qid.
 #       - Need to figure out how to update existing db entry
 @app.route('/api/questions/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
@@ -291,13 +313,13 @@ def rescue_count():
                 patients = Rescues(rescue_key="Patients",rescue_count=0)
                 db.session.add(patients)
                 db.session.commit()
-                patients = Rescues.query.filter_by(rescue_key="Patients").first()	
+                patients = Rescues.query.filter_by(rescue_key="Patients").first()
             return jsonify(success=True, patient_count = patients.rescue_count)
         except Exception as e:
             return jsonify(success=False, message=str(e))
-        
-        
-        
+
+
+
 # Note: other routes involve GETting the analytics about each
 # location. /api/responses/count? Not sure how this should be setup..
 
