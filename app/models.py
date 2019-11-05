@@ -26,3 +26,7 @@ class Rescues(db.Model):
     rescue_key = db.Column(db.String(128), primary_key=True, nullable=False)
     rescue_count = db.Column(db.Integer)
 
+class CityImages(db.Model):
+    query = db.Column(db.String(128), primary_key=True)
+    image = db.Column(db.LargeBinary(1000000), nullable=False)
+

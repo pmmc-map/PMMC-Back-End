@@ -1,6 +1,6 @@
 
 from app import app, db
-from app.models import Location, Rescues, AnimalLocations
+from app.models import Location, Rescues, AnimalLocations, CityImages
 from app.survey import Question, Response, Option
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
@@ -164,7 +164,7 @@ def state(state_name):
         return jsonify({'locations': all_locations})
 
 @cross_origin(supports_credentials=True)
-@app.route('/api/images/city', methods=['POST'])
+@app.route('/api/images/city', methods=['GET','POST'])
 def city_image():
     if request.method == "GET":
         city = request.args.get('city').lower()
@@ -195,6 +195,7 @@ def city_image():
         response.headers.set('Content-Type', 'image/jpeg')
         response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
         return response, 200
+    return "Test"
 
 
 # GETs all questions in questions database table
