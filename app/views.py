@@ -165,18 +165,18 @@ def state(state_name):
 
 @app.route('/api/images/city', methods=['POST'])
 def city_image():
-	if request.method == "POST":
-		if request.headers['Content-Type'] == 'application/json':
-			city = request.json['city']
-			search_type = "&searchType=image"
-			img_size = "&imgSize=large"
-			req_url = FULL_URL + city + " landmark" + search_type + img_size
-			return requests.get(req_url).json()
-			response = {"city": requests.get(req_url).json()['items'][0]['link']}
-			return jsonify(response), 200
+    if request.method == "POST":
+        if request.headers['Content-Type'] == 'application/json':
+            city = request.json['city']
+            search_type = "&searchType=image"
+            img_size = "&imgSize=large"
+            req_url = FULL_URL + city + " landmark" + search_type + img_size
+            return requests.get(req_url).json()
+        response = {"city": requests.get(req_url).json()['items'][0]['link']}
+        return jsonify(response), 200
 
 # GETs all questions in questions database table
-@app.route('/api/questions', methods=['GET'])
+@app.route('/api/questions', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
 def all_questions():
     if request.method == "GET":
@@ -187,6 +187,11 @@ def all_questions():
         return jsonify({'questions': all_questions})
     if request.method == "POST":
         # Option to add a question will come later. Nice to have
+        qid = request.json["qid"]
+        question_text = request.json["text"]
+        question = Question(qid=qid, text=question_text)
+        db.session.add(question)
+        db.session.commit()
         return jsonify(success=True, message="New question added")     
 
 # GET question based on question_id, return json of question
@@ -282,6 +287,11 @@ def rescue_count():
     if request.method == "GET":
         try:
             patients = Rescues.query.filter_by(rescue_key="Patients").first()
+            if patients ==  None:
+                patients = Rescues(rescue_key="Patients",rescue_count=0)
+                db.session.add(patients)
+                db.session.commit()
+                patients = Rescues.query.filter_by(rescue_key="Patients").first()	
             return jsonify(success=True, patient_count = patients.rescue_count)
         except Exception as e:
             return jsonify(success=False, message=str(e))
