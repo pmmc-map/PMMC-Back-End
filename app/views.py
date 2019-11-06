@@ -164,6 +164,7 @@ def state(state_name):
         return jsonify({'locations': all_locations})
 
 @app.route('/api/images/city', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def city_image():
     if request.method == "POST":
         if request.headers['Content-Type'] == 'application/json':
@@ -171,7 +172,6 @@ def city_image():
             search_type = "&searchType=image"
             img_size = "&imgSize=large"
             req_url = FULL_URL + city + " landmark" + search_type + img_size
-            return requests.get(req_url).json()
         response = {"city": requests.get(req_url).json()['items'][0]['link']}
         return jsonify(response), 200
 
