@@ -1,9 +1,9 @@
 
 from app import app, db
-from app.models import Location, Rescues, AnimalLocations, Count
+from app.models import Location, AnimalLocations, Count, DonationVisit
 from app.survey import Question, Response, Option
 from app.gmail import send_email
-from flask import jsonify, make_response, request, url_for
+from flask import jsonify, make_response, request, url_for, redirect
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
@@ -17,6 +17,8 @@ IMAGE_API_CX = "006863879937283909592:yqzj4vzeazr"
 IMAGE_API_KEY = 'AIzaSyBD8SsoOb7ZbeKM-_4D1dPvXRQggTqLoR8'
 IMAGE_API_URL = 'https://www.googleapis.com/customsearch/v1'
 FULL_URL = IMAGE_API_URL + "?key=" + IMAGE_API_KEY + "&cx=" + IMAGE_API_CX + "&q="
+
+DONATION_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6K7QH9UVKF924"
 
 class InvalidLocationError(Exception):
     pass
@@ -325,6 +327,31 @@ def update_count(name):
         count.total = new_total
         db.session.commit()
         return jsonify(success=True, message=name + " count updated to " + str(new_total))
+
+@app.route('/api/donation_redirect', methods=["GET"])
+@cross_origin(supports_credentials=True)
+def donation_redirect():
+    if request.method == "GET":
+        visit = DonationVisit(dv_timestamp=datetime.datetime.now())
+        db.session.add(visit)
+        db.session.commit()
+        return redirect(DONATION_URL)
+
+@app.route('/api/donation_visits', methods=["GET"])
+@cross_origin(supports_credentials=True)
+def donation_visits():
+    if request.method == "GET":
+        all_donation_visits = []
+        for dv in DonationVisit.query.all():
+            dv_json = {"id": dv.dvid, "timestamp": dv.dv_timestamp}
+            all_donation_visits.append(dv_json)
+        return jsonify({'donation_visits': all_donation_visits})
+
+# TODO: It might be a good idea to have separate files for the /api/ endpoints and the /admin/ endpoints
+# admin endpoints are tools that are specific will be used by the PMMC folks rather than us.
+# Should Count be an admin tool because they are specifically changing it? 
+# This would make the survey responses admin too...
+# Thinking
 
 @app.route('/')
 def index():
