@@ -2,6 +2,7 @@
 from app import app, db
 from app.models import Location, Rescues, AnimalLocations
 from app.survey import Question, Response, Option
+from app.gmail import send_email
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
@@ -265,9 +266,19 @@ def email():
         if "email_address" in request.json:
             to_email = request.json["email_address"]
         else:
-            return jsonify(success=False)
+            return jsonify(success=False, message="No address sent")
         subject = "Map Application Data " + str(datetime.datetime.now().strftime("%Y-%m-%d"))
-        body = "Attached are the spreadsheet files reporting new pins, visits to the donation site, and survey responses!"
+        body = "Hello!\n\nAttached are the analytics spreadsheet files." \
+                " These files report survey responses, new pin information, and visits to the donation site.\n\n" \
+                " Have a great day!"
+        files = []
+        try:
+            send_email(to_email, subject, body, files)
+        except Exception as e:
+            return jsonify(success=False, message="Could not send email. Error: " + str(e))
+        return jsonify(success=True, message="Email sent to " + to_email + " successfully")
+
+
 
 @app.route('/admin/rescues', methods=["POST", "GET"])
 @cross_origin(supports_credentials=True)
