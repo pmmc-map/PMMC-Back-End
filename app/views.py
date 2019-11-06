@@ -1,6 +1,6 @@
 
 from app import app, db
-from app.models import Location, Rescues, AnimalLocations
+from app.models import Location, Rescues, AnimalLocations, Count
 from app.survey import Question, Response, Option
 from app.gmail import send_email
 from flask import jsonify, make_response, request, url_for
@@ -278,39 +278,53 @@ def email():
             return jsonify(success=False, message="Could not send email. Error: " + str(e))
         return jsonify(success=True, message="Email sent to " + to_email + " successfully")
 
-
-
-@app.route('/admin/rescues', methods=["POST", "GET"])
+# Generic Count database used for storing incrementing values.
+# For now, we are keeping a Count of the rescued animal total 
+# to display on the main page.
+# POST to create a new count
+# GET to view all existing counts
+@app.route('/admin/count', methods=["POST", "GET"])
 @cross_origin(supports_credentials=True)
-def rescue_count():
-    if request.method == "POST":
-        if "new_count" in request.json:
-            new_count = request.json["new_count"]
-        else:
-            return jsonify(success=False)
-        try:
-            patients = Rescues.query.filter_by(rescue_key="Patients").first()
-            patients.rescue_count = new_count
-            db.session.commit()
-            return jsonify(success=True, message="Total patients now inscreased to " + str(new_count))
-        except Exception as e:
-            return jsonify(success=False, message=str(e))
+def count():
     if request.method == "GET":
-        try:
-            patients = Rescues.query.filter_by(rescue_key="Patients").first()
-            if patients ==  None:
-                patients = Rescues(rescue_key="Patients",rescue_count=0)
-                db.session.add(patients)
-                db.session.commit()
-                patients = Rescues.query.filter_by(rescue_key="Patients").first()	
-            return jsonify(success=True, patient_count = patients.rescue_count)
-        except Exception as e:
-            return jsonify(success=False, message=str(e))
-        
-        
-        
-# Note: other routes involve GETting the analytics about each
-# location. /api/responses/count? Not sure how this should be setup..
+        all_counts = []
+        for count in Count.query.all():
+            count_json = {"name": count.name, "total": count.total}
+            all_counts.append(count_json)
+        return jsonify({'counts': all_counts})
+    if request.method == "POST":
+        # Add a new running counter to the Count database 
+        new_total = 0
+        if "total" in request.json:
+            new_total = request.json["total"]
+        if "name" in request.json:
+            new_name = request.json["name"]
+        else:
+            return jsonify(success=False, message="'name' not specified in attempt to create new Count")
+        count = Count(name=new_name, total=new_total)
+        db.session.add(count)
+        db.session.commit()
+        return jsonify(success=True, message=name + " count added to table with a count of " + str(new_total))
+
+# Endpoint to update count entries
+# Specifically, updating the "rescues" for the PMMC admins
+# POST a "new_total" to the count to change the total.
+# Note: This is in replacement of the old "Rescues" table.
+@app.route('/admin/count/<name>', methods=["POST"])
+@cross_origin(supports_credentials=True)
+def update_count(name):
+    if request.method == "POST":
+        new_total = 0
+        if "new_total" in request.json:
+            new_total = request.json["new_total"]
+        else:
+            return jsonify(success=False, message="'new_total' not specified in attempt to update the " + name + " count")
+        count = Count.query.filter_by(name=name).first()
+        if count == None:
+            return jsonify(success=False, message="No count named " + name + " exists in this database")
+        count.total = new_total
+        db.session.commit()
+        return jsonify(success=True, message=name + " count updated to " + str(new_total))
 
 @app.route('/')
 def index():
