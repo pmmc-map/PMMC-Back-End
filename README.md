@@ -87,68 +87,68 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Input parameters: QID defined in URL.
 * Response: Success 
 
-#### GET /api/responses
-* Returns all responses in the database. 
-* NOTE: Refers to responses to questions, not responses submitted by the user.
+#### GET /api/options
+* Returns all options associated with questions in the database. 
+* NOTE: Refers to multiple choice options presented to the user, not responses submitted by the user.
 * Input parameters: None 
-* Response: JSON with list of Responses, each associated with an `rid` and `qid`. 
+* Response: JSON with list of Options, each associated with an `oid` and `qid`. 
 * Example: 
 
 ```
 {
-  "responses": [
+  "options": [
     {
       "qid": 4,
-      "rid": 1,
+      "oid": 1,
       "text": "Facebook"
     },
     {
       "qid": 4,
-      "rid": 2,
+      "oid": 2,
       "text": "Word of mouth"
     }
   ]
 }
 ```
 
-#### DELETE /api/responses
-* Deletes a response by rid
-* Input parameters: JSON body with defined `rid` value. 
+#### DELETE /api/options
+* Deletes a response by oid
+* Input parameters: JSON body with defined `oid` value. 
 * Response: Success
 
-#### GET /api/responses/rid/\<RID>
-* Returns the Response associated with an rid
-* Input parameters: RID defined in the URL
-* Response: JSON with a Response object
+#### GET /api/options/oid/\<OID>
+* Returns the Options associated with an oid
+* Input parameters: OID defined in the URL
+* Response: JSON with an Option object
   
-#### POST /api/responses/rid/\<RID>
-* Updates a Response's text
-* Input paramters: RID defined in URL. JSON body with `updated_text` value set to new Response text.
+#### POST /api/options/oid/\<OID>
+* Updates an Option's text
+* Input paramters: OID defined in URL. JSON body with `updated_text` value set to new Option text.
 * Response: Success
   
-#### DELETE /api/responses/rid/\<RID>
-* Delete a Response by rid
-* Input parameters: RID defined in the URL.
+#### DELETE /api/options/oid/\<OID>
+* Delete an Option by oid
+* Input parameters: OID defined in the URL.
 * Response: Success
   
-#### GET /api/responses/qid/\<QID>
-* Returns all the Responses associated with a question.
+#### GET /api/options/qid/\<OID>
+* Returns all the Options associated with a question.
 * Input parameters: QID defined in the URL.
-* Response: JSON with list of Response objects.
+* Response: JSON with list of Option objects.
 
-#### POST /api/responses/qid/\<QID>
-* Add a Response to a question.
-* Input parameters: QID defined in the URL. JSON body with `text` value set to new Response text.
+#### POST /api/options/qid/\<QID>
+* Add a multiple choice Option to a question.
+* Input parameters: QID defined in the URL. JSON body with `text` value set to new Option text.
 * Response: Success
   
 #### GET /api/visitor_response
 * Returns all visitor responses in the database.
 * Input parameters: None
-* Response: JSON with list of rid's associated with a timestamp.
+* Response: JSON with list of oid's associated with a timestamp.
 
 #### POST /api/visitor_response
 * Add a visitor's response to a survey question to our database.
-* Input parameters: JSON body with `rid` value defined.
+* Input parameters: JSON body with `oid` value defined.
 * Response: Success
   
 
