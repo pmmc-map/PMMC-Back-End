@@ -38,18 +38,18 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Returns all (active) questions in the database
 * Input parameters: No input parameters
 * Response: Json list of questions with `text` and `qid`
-* Example:
+* Example:     
+```
+{
+  "questions": [
+    {
+      "qid": 1,
+      "text": "What is your age"
+    }
+  ]
+}
+```
 
-        
-        {
-          "questions": [
-            {
-              "qid": 1,
-              "text": "What is your age"
-            }
-          ]
-        }
-        
 #### POST /api/questions 
 * Adds a new question to the database
 * Input parameters: JSON body with a `text` field defining the text of the new question
@@ -60,26 +60,28 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Input parameters: JSON body with a `qid` field to define which question should be deleted.
 * Response: Success
 
-### GET /api/questions/qid/<QID>
+### GET /api/questions/qid/\<QID>
 * Returns the question with qid=QID.
 * Input parameters: QID defined in the URL.
 * Response: JSON with the question 
 * Example: 
 
-        {
-          "question": {
-            "qid": 1,
-            "text": "What is your age"
-          }
-        }
+```
+{
+  "question": {
+    "qid": 1,
+    "text": "What is your age"
+  }
+}
+```
 
 
-### POST /api/questions/qid/<qid> 
+### POST /api/questions/qid/\<QID> 
 * Updates a question's text by qid. 
 * Input parameters: QID defined in the URL. JSON body with new question text defined as `updated_text`. 
 * Response: Success 
 
-#### DELETE /api/questions/qid/<QID>
+#### DELETE /api/questions/qid/\<QID>
 * Deletes a question from the database (by making it inactive). 
 * NOTE: This is the same as the DELETE request in /api/questions.
 * Input parameters: QID defined in URL.
@@ -92,47 +94,49 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Response: JSON with list of Responses, each associated with an `rid` and `qid`. 
 * Example: 
 
-        {
-          "responses": [
-            {
-              "qid": 4,
-              "rid": 1,
-              "text": "Facebook"
-            },
-            {
-              "qid": 4,
-              "rid": 2,
-              "text": "Word of mouth"
-            }
-          ]
-        }
+```
+{
+  "responses": [
+    {
+      "qid": 4,
+      "rid": 1,
+      "text": "Facebook"
+    },
+    {
+      "qid": 4,
+      "rid": 2,
+      "text": "Word of mouth"
+    }
+  ]
+}
+```
 
 #### DELETE /api/responses
 * Deletes a response by rid
 * Input parameters: JSON body with defined `rid` value. 
 * Response: Success
 
-#### GET /api/responses/rid/<RID>
+#### GET /api/responses/rid/\<RID>
 * Returns the Response associated with an rid
 * Input parameters: RID defined in the URL
 * Response: JSON with a Response object
   
-#### POST /api/responses/rid/<RID>
+#### POST /api/responses/rid/\<RID>
 * Updates a Response's text
 * Input paramters: RID defined in URL. JSON body with `updated_text` value set to new Response text.
 * Response: Success
   
-#### DELETE /api/responses/rid/<RID>
+#### DELETE /api/responses/rid/\<RID>
 * Delete a Response by rid
 * Input parameters: RID defined in the URL.
 * Response: Success
   
-#### GET /api/responses/qid/<QID>
+#### GET /api/responses/qid/\<QID>
 * Returns all the Responses associated with a question.
 * Input parameters: QID defined in the URL.
 * Response: JSON with list of Response objects.
 
-#### POST /api/responses/qid/<QID>
+#### POST /api/responses/qid/\<QID>
 * Add a Response to a question.
 * Input parameters: QID defined in the URL. JSON body with `text` value set to new Response text.
 * Response: Success
