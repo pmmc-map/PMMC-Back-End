@@ -319,6 +319,7 @@ def email():
         body = "Hello!\n\nAttached are the analytics spreadsheet files." \
                 " These files report survey responses, new pin information, and visits to the donation site.\n\n" \
                 " Have a great day!"
+        # files = tablesToCsv() ... 
         files = []
         try:
             send_email(to_email, subject, body, files)
