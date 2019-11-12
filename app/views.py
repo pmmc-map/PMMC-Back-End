@@ -179,7 +179,9 @@ def city_image():
         return jsonify(response), 200
 
 # GETs all questions in questions database table
-@app.route('/api/questions', methods=['GET', 'POST'])
+# POST a new question with provided text
+# DELETE an existing question by sending qid
+@app.route('/api/questions', methods=['GET', 'POST', 'DELETE'])
 @cross_origin(supports_credentials=True)
 def all_questions():
     if request.method == "GET":
@@ -191,28 +193,27 @@ def all_questions():
     if request.method == "POST":
         # Add new question (at new qid)
         question_text = request.json["text"]
-        # Should they even be able edit existing qid questions from here?
-        if "qid" in request.json:
-            qid = request.json["qid"]
-            question = Question(qid=qid, text=question_text, active=True)
-        else:
-            question = Question(text=question_text, active=True)
+        question = Question(text=question_text, active=True)
         db.session.add(question)
         db.session.commit()
-        return jsonify(success=True, message="New question added")     
+        return jsonify(success=True, message="New question added")  
+    if request.method == "DELETE":
+        qid = request.json["qid"]
+        question = Question.query.filter_by(qid=qid).first()
+        question.active = False
+        db.session.commit()
+        return jsonify(success=True, message="Question deleted (set to inactive)")           
 
 # GET question based on question_id, return json of question
 # POST to question by adding a Response associated with that question_id
-# TODO: Should this POST be in /questions or /responses? In both for now
-# TODO: POST should change the question in the database based on the qid. 
-#       - Need to figure out how to update existing db entry
-@app.route('/api/questions/<qid>', methods=['GET', 'POST'])
+# DELETE a question by qid (makes question inactive)
+@app.route('/api/questions/qid/<qid>', methods=['GET', 'POST', 'DELETE'])
 @cross_origin(supports_credentials=True)
 def question(qid):
     if request.method == "GET":
         all_questions = []
         # This should only have one response, but displaying all for debugging
-        for question in Question.query.filter_by(qid=qid):
+        for question in Question.query.filter_by(qid=qid).first():
             question_json = {"qid": question.qid, "text": question.text}
             all_questions.append(question_json)
         return jsonify({'question': all_questions})
@@ -224,14 +225,62 @@ def question(qid):
             question.text = updated_question
         else:
             return jsonify(success=False, message = "No updated question sent")
-        return jsonify(success=True)
+        db.session.commit()
+        return jsonify(success=True, message="Question text changed")
+    if request.method == "DELETE":
+        question = Question.query.filter_by(qid=qid).first()
+        question.active = False
+        db.session.commit()
+        return jsonify(success=True, message="Question deleted (set to inactive)")
+
+# GET all responses, mainly for debugging
+# DELETE a response by rid
+@app.route('/api/responses', methods=['GET', 'POST', 'DELETE'])
+@cross_origin(supports_credentials=True)
+def all_responses():
+    if request.method == "GET":
+        all_responses = []
+        for response in Response.query.all():
+            response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
+            all_responses.append(response_json)
+        return jsonify({'responses': all_responses})      
+    if request.method == "DELETE":
+        rid = request.json["rid"]
+        response = Response.query.filter_by(rid=rid).first()
+        db.session.delete(response)
+        db.session.commit()
+        return jsonify(success=True, message="Response rid " + str(rid) + " deleted")
+
+# GET a single response by rid
+# POST to edit a response, send updated_text
+# DELETE to delete a response by rid
+@app.route('/api/responses/rid/<rid>', methods=['GET', 'POST', 'DELETE'])
+@cross_origin(supports_credentials=True)
+def single_response(rid):
+    if request.method == "GET":
+        all_responses = []
+        for response in Response.query.filter_by(rid=rid).all():
+            response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
+            all_responses.append(response_json)
+        return jsonify({'responses': all_responses})      
+    if request.method == "POST":
+        response = Response.query.filter_by(rid=rid).first()
+        updated_text = request.json["updated_text"]
+        response.text = updated_text
+        db.session.commit()
+        return jsonify(success=True, message="Response text updated")
+    if request.method == "DELETE":
+        response = Response.query.filter_by(rid=rid).first()
+        db.session.delete(response)
+        db.session.commit()
+        return jsonify(success=True, message="Response rid " + str(rid) + " deleted")
+
 
 # GET responses associated with a question_id
 # POST response associated with a question_id
-# TODO: Again, decide where this POST should live
-@app.route('/api/responses/<qid>', methods=['GET', 'POST'])
+@app.route('/api/responses/qid/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
-def responses(qid):
+def question_responses(qid):
     if request.method == "GET":
         all_responses = []
         for response in Response.query.filter_by(qid=qid):
