@@ -219,10 +219,10 @@ def question(qid):
         return jsonify({'question': all_questions})
     if request.method == "POST":
         # For now, just an updated question
-        if updated_question in request.json:
-            updated_question = request.json["new_text"]
+        if "updated_text" in request.json:
+            updated_text = request.json["updated_text"]
             question = Question.query.filter_by(qid = qid).first()
-            question.text = updated_question
+            question.text = updated_text
         else:
             return jsonify(success=False, message = "No updated question sent")
         db.session.commit()
