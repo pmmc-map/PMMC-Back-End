@@ -11,6 +11,10 @@ class Location(db.Model):
     # Might need to filter visitors by month eventually
     visit_date = db.Column(db.DateTime, nullable=True)
 
+class DonationVisit(db.Model):
+    dvid = db.Column(db.Integer, primary_key=True)
+    dv_timestamp = db.Column(db.DateTime)
+
 class AnimalLocations(db.Model):
         #Primary key will auto increment
     alid = db.Column(db.Integer, primary_key=True)
