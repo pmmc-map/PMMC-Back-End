@@ -112,7 +112,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
 ```
 
 #### DELETE /api/options
-* Deletes a response by oid
+* Deletes an existing option by oid
 * Input parameters: JSON body with defined `oid` value. 
 * Response: Success
 
