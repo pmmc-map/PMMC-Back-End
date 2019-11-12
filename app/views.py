@@ -211,12 +211,9 @@ def all_questions():
 @cross_origin(supports_credentials=True)
 def question(qid):
     if request.method == "GET":
-        all_questions = []
-        # This should only have one response, but displaying all for debugging
-        for question in Question.query.filter_by(qid=qid).first():
-            question_json = {"qid": question.qid, "text": question.text}
-            all_questions.append(question_json)
-        return jsonify({'question': all_questions})
+        question = Question.query.filter_by(qid=qid).first()
+        question_json = {"qid": question.qid, "text": question.text}
+        return jsonify({'question': question_json})
     if request.method == "POST":
         # For now, just an updated question
         if "updated_text" in request.json:
@@ -233,89 +230,53 @@ def question(qid):
         db.session.commit()
         return jsonify(success=True, message="Question deleted (set to inactive)")
 
-# GET all responses, mainly for debugging
-# DELETE a response by rid
-@app.route('/api/responses', methods=['GET', 'POST', 'DELETE'])
-@cross_origin(supports_credentials=True)
-def all_responses():
-    if request.method == "GET":
-        all_responses = []
-        for response in Response.query.all():
-            response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
-            all_responses.append(response_json)
-        return jsonify({'responses': all_responses})      
-    if request.method == "DELETE":
-        rid = request.json["rid"]
-        response = Response.query.filter_by(rid=rid).first()
-        db.session.delete(response)
-        db.session.commit()
-        return jsonify(success=True, message="Response rid " + str(rid) + " deleted")
 
-# GET a single response by rid
-# POST to edit a response, send updated_text
-# DELETE to delete a response by rid
-@app.route('/api/responses/rid/<rid>', methods=['GET', 'POST', 'DELETE'])
+# GET all options, mainly for debugging
+# DELETE a option by oid
+@app.route('/api/options', methods=['GET', 'POST', 'DELETE'])
 @cross_origin(supports_credentials=True)
-def single_response(rid):
+def all_options():
     if request.method == "GET":
-        all_responses = []
-        for response in Response.query.filter_by(rid=rid).all():
-            response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
-            all_responses.append(response_json)
-        return jsonify({'responses': all_responses})      
+        all_options = []
+        for option in Option.query.all():
+            option_json = {"oid": option.oid, "qid": option.qid, "text": option.text}
+            all_options.append(option_json)
+        return jsonify({'options': all_options})      
+    if request.method == "DELETE":
+        oid = request.json["oid"]
+        option = option.query.filter_by(oid=oid).first()
+        db.session.delete(option)
+        db.session.commit()
+        return jsonify(success=True, message="option oid " + str(oid) + " deleted")
+
+# GET a single option by oid
+# POST to edit a option, send updated_text
+# DELETE to delete a option by oid
+@app.route('/api/options/oid/<oid>', methods=['GET', 'POST', 'DELETE'])
+@cross_origin(supports_credentials=True)
+def single_option(oid):
+    if request.method == "GET":
+        option = option.query.filter_by(oid=oid).first()
+        option_json = {"oid": option.oid, "qid": option.qid, "text": option.text}
+        return jsonify({'option': option_json})      
     if request.method == "POST":
-        response = Response.query.filter_by(rid=rid).first()
+        option = Option.query.filter_by(oid=oid).first()
         updated_text = request.json["updated_text"]
-        response.text = updated_text
+        option.text = updated_text
         db.session.commit()
-        return jsonify(success=True, message="Response text updated")
+        return jsonify(success=True, message="option text updated")
     if request.method == "DELETE":
-        response = Response.query.filter_by(rid=rid).first()
-        db.session.delete(response)
+        option = Option.query.filter_by(oid=oid).first()
+        db.session.delete(option)
         db.session.commit()
-        return jsonify(success=True, message="Response rid " + str(rid) + " deleted")
-
-
-# GET responses associated with a question_id
-# POST response associated with a question_id
-@app.route('/api/responses/qid/<qid>', methods=['GET', 'POST'])
-@cross_origin(supports_credentials=True)
-def question_responses(qid):
-    if request.method == "GET":
-        all_responses = []
-        for response in Response.query.filter_by(qid=qid):
-            response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
-            all_responses.append(response_json)
-        return jsonify({'responses': all_responses})
-    if request.method == "POST":
-        response_text = request.json["text"]
-        response = Response(text = response_text, qid=qid)
-        db.session.add(response)
-        db.session.commit()
-        return jsonify(success=True)
-
-@app.route('/api/visitor_response', methods=['GET', 'POST'])
-@cross_origin(supports_credentials=True)
-def visitor_response():
-    if request.method == "GET":
-        all_responses = []
-        for response in VisitorResponse.query.all():
-            response_json = {"rid": response.rid, "vr_timestamp": response.vr_timestamp}
-            all_responses.append(response_json)
-        return jsonify({'responses': all_responses})    
-    if request.method == "POST":
-        rid = request.json["rid"]
-        visitor_response = VisitorResponse(rid = rid, vr_timestamp = datetime.datetime.now())
-        db.session.add(visitor_response)
-        db.session.commit()
-        return jsonify(success=True, message="Response added to database")
+        return jsonify(success=True, message="option oid " + str(oid) + " deleted")
 
 
 # GET options associated with a question_id
-# TODO: Again, decide where this POST should live
-@app.route('/api/options/<qid>', methods=['GET', 'POST'])
+# POST option associated with a question_id
+@app.route('/api/options/qid/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
-def options(qid):
+def question_options(qid):
     if request.method == "GET":
         all_options = []
         for option in Option.query.filter_by(qid=qid):
@@ -328,6 +289,22 @@ def options(qid):
         db.session.add(option)
         db.session.commit()
         return jsonify(success=True)
+
+@app.route('/api/visitor_response', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def visitor_response():
+    if request.method == "GET":
+        all_responses = []
+        for response in VisitorResponse.query.all():
+            response_json = {"oid": response.oid, "vr_timestamp": response.vr_timestamp}
+            all_responses.append(response_json)
+        return jsonify({'responses': all_responses})    
+    if request.method == "POST":
+        oid = request.json["oid"]
+        visitor_response = VisitorResponse(oid = oid, vr_timestamp = datetime.datetime.now())
+        db.session.add(visitor_response)
+        db.session.commit()
+        return jsonify(success=True, message="Visitor response added to database")
 
 @app.route('/admin/email', methods=["POST"])
 @cross_origin(supports_credentials=True)
