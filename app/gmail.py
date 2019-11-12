@@ -1,5 +1,7 @@
 import smtplib
+from email import encoders
 from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 
 # TODO: Add as environment variables
@@ -18,9 +20,29 @@ def send_email(to_email, subject, body, files=[]):
         message['To'] = to_email
         message['Subject'] = subject
         message.attach(MIMEText(body, 'plain'))
+
+        # Test file, will be list of files
+        f = open("Text.txt", "w+")
+        f.write("TEST!!")
+        f.close()
+
+        # Open file as binary and read
+        with open("Test.txt", "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+
+        encoders.encode_base64(part)
+        part.add_header(
+            "Content-Disposition",
+            "attachment; filename=Test.txt",
+        )
+
+        # Add attachment to message and convert message to string
+        message.attach(part)
+        text = message.as_string()
         server.send_message(message)
-        print("Sent")
         server.quit()
+
     except Exception as e:
         print(str(e))
         raise Exception(str(e))
