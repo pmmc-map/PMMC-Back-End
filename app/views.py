@@ -1,7 +1,7 @@
 
 from app import app, db
 from app.models import Location, AnimalLocations, Count, DonationVisit
-from app.survey import Question, Response, Option
+from app.survey import Question, Response, Option, VisitorResponse
 from app.gmail import send_email
 from flask import jsonify, make_response, request, url_for, redirect
 import requests, datetime, urllib
@@ -129,7 +129,7 @@ def location_counts():
     #     if l.country == "USA":
     #         states.add(l.state)
     # state_count = len(states)
-    return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unique_counties=country_count)
+    return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unqiue_countries=country_count)
 
 # GETs location based on country name
 @app.route('/api/locations/country/<country_name>', methods=['GET'])
@@ -184,15 +184,19 @@ def city_image():
 def all_questions():
     if request.method == "GET":
         all_questions = []
-        for question in Question.query.all():
+        for question in Question.query.filter_by(active=True).all():
             question_json = {"qid": question.qid, "text": question.text}
             all_questions.append(question_json)
         return jsonify({'questions': all_questions})
     if request.method == "POST":
-        # Option to add a question will come later. Nice to have
-        qid = request.json["qid"]
+        # Add new question (at new qid)
         question_text = request.json["text"]
-        question = Question(qid=qid, text=question_text)
+        # Should they even be able edit existing qid questions from here?
+        if "qid" in request.json:
+            qid = request.json["qid"]
+            question = Question(qid=qid, text=question_text, active=True)
+        else:
+            question = Question(text=question_text, active=True)
         db.session.add(question)
         db.session.commit()
         return jsonify(success=True, message="New question added")     
@@ -215,7 +219,7 @@ def question(qid):
     if request.method == "POST":
         # For now, just an updated question
         if updated_question in request.json:
-            updated_question = request.json["updated_question"]
+            updated_question = request.json["new_text"]
             question = Question.query.filter_by(qid = qid).first()
             question.text = updated_question
         else:
@@ -241,6 +245,23 @@ def responses(qid):
         db.session.commit()
         return jsonify(success=True)
 
+@app.route('/api/visitor_response', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def visitor_response():
+    if request.method == "GET":
+        all_responses = []
+        for response in VisitorResponse.query.all():
+            response_json = {"rid": response.rid, "vr_timestamp": response.vr_timestamp}
+            all_responses.append(response_json)
+        return jsonify({'responses': all_responses})    
+    if request.method == "POST":
+        rid = request.json["rid"]
+        visitor_response = VisitorResponse(rid = rid, vr_timestamp = datetime.datetime.now())
+        db.session.add(visitor_response)
+        db.session.commit()
+        return jsonify(success=True, message="Response added to database")
+
+
 # GET options associated with a question_id
 # TODO: Again, decide where this POST should live
 @app.route('/api/options/<qid>', methods=['GET', 'POST'])
@@ -258,7 +279,6 @@ def options(qid):
         db.session.add(option)
         db.session.commit()
         return jsonify(success=True)
-
 
 @app.route('/admin/email', methods=["POST"])
 @cross_origin(supports_credentials=True)
