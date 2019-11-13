@@ -1,12 +1,14 @@
-
+import csv
+import pandas as pd
 from app import app, db
-from app.models import Location, AnimalLocations, Count, DonationVisit
+from app.models import Location, AnimalLocations, Count, DonationVisit, CityImages
 from app.survey import Question, Response, Option, VisitorResponse
 from app.gmail import send_email
 from flask import jsonify, make_response, request, url_for, redirect
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
+import urllib
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
@@ -25,6 +27,17 @@ class InvalidLocationError(Exception):
 
 class InWaterError(Exception):
     pass
+
+def sql_to_csv(tables=[Question, Response, Option], key='qid', name='mydump'):
+    combined = db.session.query(*tables)
+    for table in tables[1:]:
+        combined = combined.join(table)#, tables[0].qid == table.qid) USE IF NOT USING FOREIGN KEYS
+
+    df = pd.read_sql(combined.statement, db.session.bind)
+    df = df.loc[:,~df.columns.duplicated()]
+    del df[key] 
+    df.to_csv(name, index=False) 
+    return open(name + '.csv', 'w'), name 
 
 def get_location_data(lat, long):
     vars = {"key": GEO_API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
