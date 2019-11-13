@@ -5,7 +5,10 @@ from optionsParser import addOptions
 
 if __name__=="__main__":
     print("Emptying current Question table...\n")
-    Question.__table__.drop(db.engine)
+    try:
+        Question.__table__.drop(db.engine)
+    except:
+        pass
     db.create_all()
     addQuestions()
     for question in Question.query.all():
