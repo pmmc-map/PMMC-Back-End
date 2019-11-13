@@ -1,4 +1,5 @@
-
+import csv
+import pandas as pd
 from app import app, db
 from app.models import Location, CityImages
 from app.survey import Question, Response, Option
@@ -24,6 +25,17 @@ class InvalidLocationError(Exception):
 class InWaterError(Exception):
     pass
 
+def sql_to_csv(tables=[Question, Response, Option], key='qid', name='mydump'):
+    combined = db.session.query(*tables)
+    for table in tables[1:]:
+        combined = combined.join(table)#, tables[0].qid == table.qid) USE IF NOT USING FOREIGN KEYS
+
+    df = pd.read_sql(combined.statement, db.session.bind)
+    df = df.loc[:,~df.columns.duplicated()]
+    del df[key] 
+    df.to_csv(name, index=False) 
+    return open(name + '.csv', 'w'), name 
+sql_to_csv()
 def get_location_data(lat, long):
     vars = {"key": GEO_API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
     req_url = GEO_BASE_URL + urllib.parse.urlencode(vars)
@@ -214,7 +226,7 @@ def question(qid):
         return jsonify({'question': all_questions})
     if request.method == "POST":
         response_text = request.json["text"]
-        response = Response(text = response_text, qid=qid)
+        response = Question(text=response_text, qid=qid)
         db.session.add(response)
         db.session.commit()
         return jsonify(success=True)
@@ -224,7 +236,7 @@ def question(qid):
 # TODO: Again, decide where this POST should live
 @app.route('/api/responses/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
-def responsee(qid):
+def responsee(qid): 
     if request.method == "GET":
         all_responses = []
         for response in Response.query.filter_by(qid=qid):

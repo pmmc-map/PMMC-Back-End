@@ -17,3 +17,4 @@ flask-mysqldb
 mysql-connector-python
 mysqlclient
 pymysql
+pandas
