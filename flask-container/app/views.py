@@ -35,7 +35,7 @@ def sql_to_csv(tables=[Question, Response, Option], key='qid', name='mydump'):
     del df[key] 
     df.to_csv(name, index=False) 
     return open(name + '.csv', 'w'), name 
-sql_to_csv()
+
 def get_location_data(lat, long):
     vars = {"key": GEO_API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
     req_url = GEO_BASE_URL + urllib.parse.urlencode(vars)
