@@ -1,2 +1,0 @@
-docker build -t mysql_docker_image .
-docker run -d -p 3307:3306 --name mysql-server --network my-network -e MYSQL_ROOT_PASSWORD=secret mysql_docker_image --default-authentication-plugin=mysql_native_password
