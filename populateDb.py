@@ -15,7 +15,10 @@ if __name__=="__main__":
         print(str(question.qid) + " " + question.text)
 
     print("\nEmptying current Option table...\n")
-    Option.__table__.drop(db.engine)
+    try:
+        Option.__table__.drop(db.engine)
+    except:
+        pass
     db.create_all()
     addOptions()
     print("Showing current d")
