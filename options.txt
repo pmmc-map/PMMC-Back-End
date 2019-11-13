@@ -1,0 +1,13 @@
+1,Internet/Social media
+1,Hotel concierge
+1,Word of mouth
+2,Vacationing in Laguna Beach 
+2,To visit Pacific Marine Mammal Center 
+2,Other
+3,Yes, excellent!
+3,It was okay
+3,No, not really
+4,Yes
+4,No
+5,Yes
+5,No
