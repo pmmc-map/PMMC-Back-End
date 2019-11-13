@@ -21,6 +21,7 @@ class AnimalLocations(db.Model):
     placement_year = db.Column(db.Integer, nullable=True) # Year the animal was placed
     animal_type = db.Column(db.String(128), nullable=True) # Type of animal (eg. seal, sea lion, harbor seal)
     animal_notes = db.Column(db.String(128), nullable=True) # Any notes or facts about animal
+    animal_images = db.Column(db.LargeBinary(1000000), nullable=True) # Images of the rescued animals
 
 class Response(db.Model):
     # I have no idea what the fields will be
