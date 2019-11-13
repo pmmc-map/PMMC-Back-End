@@ -166,7 +166,7 @@ def state(state_name):
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
 
-@app.route('/api/locations/city', methods=['GET'])
+@app.route('/api/images/city', methods=['GET'])
 @cross_origin(supports_credentials=True)
 def city_image():
     if request.method == "GET":
