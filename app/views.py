@@ -1,9 +1,10 @@
 import csv
 import pandas as pd
 from app import app, db
-from app.models import Location, CityImages
-from app.survey import Question, Response, Option
-from flask import jsonify, make_response, request, url_for
+from app.models import Location, AnimalLocations, Count, DonationVisit, CityImages
+from app.survey import Question, Response, Option, VisitorResponse
+from app.gmail import send_email
+from flask import jsonify, make_response, request, url_for, redirect
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
@@ -18,6 +19,8 @@ IMAGE_API_CX = "006863879937283909592:yqzj4vzeazr"
 IMAGE_API_KEY = 'AIzaSyBD8SsoOb7ZbeKM-_4D1dPvXRQggTqLoR8'
 IMAGE_API_URL = 'https://www.googleapis.com/customsearch/v1'
 FULL_URL = IMAGE_API_URL + "?key=" + IMAGE_API_KEY + "&cx=" + IMAGE_API_CX + "&q="
+
+DONATION_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=6K7QH9UVKF924"
 
 class InvalidLocationError(Exception):
     pass
@@ -127,6 +130,20 @@ def locations():
         return jsonify({'locations': all_locations})
     return "No request sent"
 
+@app.route('/api/locations/counts', methods=['GET'])
+@cross_origin(supports_credentials=True)
+def location_counts():
+    total_visitors = Location.query.count()
+    country_count = Location.query.with_entities(Location.country).distinct().count()
+    state_count = Location.query.filter_by(country="USA").with_entities(Location.state).distinct().count()
+    # Confirm that these are equivalent
+    # states = set()
+    # for l in Location.query.all():
+    #     if l.country == "USA":
+    #         states.add(l.state)
+    # state_count = len(states)
+    return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unqiue_countries=country_count)
+
 # GETs location based on country name
 @app.route('/api/locations/country/<country_name>', methods=['GET'])
 @cross_origin(supports_credentials=True)
@@ -162,7 +179,8 @@ def state(state_name):
             all_locations.append(location_json)
         return jsonify({'locations': all_locations})
 
-@app.route('/api/locations/city', methods=['GET'])
+@app.route('/api/images/city', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def city_image():
     if request.method == "GET":
         city = request.args.get('city').lower()
@@ -194,67 +212,105 @@ def city_image():
         response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
         return response, 200 
 
-@app.route('/api/responses') 
-def responses():
-    # Similar to add_location
-    return "Responses endpoint"
-
 # GETs all questions in questions database table
-@app.route('/api/questions', methods=['GET'])
+# POST a new question with provided text
+# DELETE an existing question by sending qid
+@app.route('/api/questions', methods=['GET', 'POST', 'DELETE'])
 @cross_origin(supports_credentials=True)
 def all_questions():
     if request.method == "GET":
         all_questions = []
-        for question in Question.query.all():
+        for question in Question.query.filter_by(active=True).all():
             question_json = {"qid": question.qid, "text": question.text}
             all_questions.append(question_json)
         return jsonify({'questions': all_questions})
-
+    if request.method == "POST":
+        # Add new question (at new qid)
+        question_text = request.json["text"]
+        question = Question(text=question_text, active=True)
+        db.session.add(question)
+        db.session.commit()
+        return jsonify(success=True, message="New question added")  
+    if request.method == "DELETE":
+        qid = request.json["qid"]
+        question = Question.query.filter_by(qid=qid).first()
+        question.active = False
+        db.session.commit()
+        return jsonify(success=True, message="Question deleted (set to inactive)")           
 
 # GET question based on question_id, return json of question
 # POST to question by adding a Response associated with that question_id
-# TODO: Should this POST be in /questions or /responses? In both for now
-@app.route('/api/questions/<qid>', methods=['GET', 'POST'])
+# DELETE a question by qid (makes question inactive)
+@app.route('/api/questions/qid/<qid>', methods=['GET', 'POST', 'DELETE'])
 @cross_origin(supports_credentials=True)
 def question(qid):
     if request.method == "GET":
-        all_questions = []
-        # This should only have one response, but displaying all for debugging
-        for question in Question.query.filter_by(qid=qid):
-            question_json = {"qid": question.qid, "text": question.text}
-            all_questions.append(question_json)
-        return jsonify({'question': all_questions})
+        question = Question.query.filter_by(qid=qid).first()
+        question_json = {"qid": question.qid, "text": question.text}
+        return jsonify({'question': question_json})
     if request.method == "POST":
-        response_text = request.json["text"]
-        response = Question(text=response_text, qid=qid)
-        db.session.add(response)
+        # For now, just an updated question
+        if "updated_text" in request.json:
+            updated_text = request.json["updated_text"]
+            question = Question.query.filter_by(qid = qid).first()
+            question.text = updated_text
+        else:
+            return jsonify(success=False, message = "No updated question sent")
         db.session.commit()
-        return jsonify(success=True)
+        return jsonify(success=True, message="Question text changed")
+    if request.method == "DELETE":
+        question = Question.query.filter_by(qid=qid).first()
+        question.active = False
+        db.session.commit()
+        return jsonify(success=True, message="Question deleted (set to inactive)")
 
-# GET responses associated with a question_id
-# POST response associated with a question_id
-# TODO: Again, decide where this POST should live
-@app.route('/api/responses/<qid>', methods=['GET', 'POST'])
+
+# GET all options, mainly for debugging
+# DELETE a option by oid
+@app.route('/api/options', methods=['GET', 'POST', 'DELETE'])
 @cross_origin(supports_credentials=True)
-def responsee(qid): 
+def all_options():
     if request.method == "GET":
-        all_responses = []
-        for response in Response.query.filter_by(qid=qid):
-            response_json = {"rid": response.rid, "qid": response.qid, "text": response.text}
-            all_responses.append(response_json)
-        return jsonify({'responses': all_responses})
-    if request.method == "POST":
-        response_text = request.json["text"]
-        response = Response(text = response_text, qid=qid)
-        db.session.add(response)
+        all_options = []
+        for option in Option.query.all():
+            option_json = {"oid": option.oid, "qid": option.qid, "text": option.text}
+            all_options.append(option_json)
+        return jsonify({'options': all_options})      
+    if request.method == "DELETE":
+        oid = request.json["oid"]
+        option = option.query.filter_by(oid=oid).first()
+        db.session.delete(option)
         db.session.commit()
-        return jsonify(success=True)
+        return jsonify(success=True, message="option oid " + str(oid) + " deleted")
+
+# GET a single option by oid
+# POST to edit a option, send updated_text
+# DELETE to delete a option by oid
+@app.route('/api/options/oid/<oid>', methods=['GET', 'POST', 'DELETE'])
+@cross_origin(supports_credentials=True)
+def single_option(oid):
+    if request.method == "GET":
+        option = option.query.filter_by(oid=oid).first()
+        option_json = {"oid": option.oid, "qid": option.qid, "text": option.text}
+        return jsonify({'option': option_json})      
+    if request.method == "POST":
+        option = Option.query.filter_by(oid=oid).first()
+        updated_text = request.json["updated_text"]
+        option.text = updated_text
+        db.session.commit()
+        return jsonify(success=True, message="option text updated")
+    if request.method == "DELETE":
+        option = Option.query.filter_by(oid=oid).first()
+        db.session.delete(option)
+        db.session.commit()
+        return jsonify(success=True, message="option oid " + str(oid) + " deleted")
+
 
 # GET options associated with a question_id
-# TODO: Again, decide where this POST should live
-@app.route('/api/options/<qid>', methods=['GET', 'POST'])
+# POST option associated with a question_id
+@app.route('/api/options/qid/<qid>', methods=['GET', 'POST'])
 @cross_origin(supports_credentials=True)
-def options(qid):
+def question_options(qid):
     if request.method == "GET":
         all_options = []
         for option in Option.query.filter_by(qid=qid):
@@ -267,9 +323,116 @@ def options(qid):
         db.session.add(option)
         db.session.commit()
         return jsonify(success=True)
-        
-# Note: other routes involve GETting the analytics about each
-# location. /api/responses/count? Not sure how this should be setup..
+
+@app.route('/api/visitor_response', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
+def visitor_response():
+    if request.method == "GET":
+        all_responses = []
+        for response in VisitorResponse.query.all():
+            response_json = {"oid": response.oid, "vr_timestamp": response.vr_timestamp}
+            all_responses.append(response_json)
+        return jsonify({'responses': all_responses})    
+    if request.method == "POST":
+        oid = request.json["oid"]
+        visitor_response = VisitorResponse(oid = oid, vr_timestamp = datetime.datetime.now())
+        db.session.add(visitor_response)
+        db.session.commit()
+        return jsonify(success=True, message="Visitor response added to database")
+
+@app.route('/admin/email', methods=["POST"])
+@cross_origin(supports_credentials=True)
+def email():
+    ## TODO: email that attaches CSV files
+    if request.method == "POST":
+        if "email_address" in request.json:
+            to_email = request.json["email_address"]
+        else:
+            return jsonify(success=False, message="No address sent")
+        subject = "Map Application Data " + str(datetime.datetime.now().strftime("%Y-%m-%d"))
+        body = "Hello!\n\nAttached are the analytics spreadsheet files." \
+                " These files report survey responses, new pin information, and visits to the donation site.\n\n" \
+                " Have a great day!"
+        # files = tablesToCsv() ... 
+        files = []
+        try:
+            send_email(to_email, subject, body, files)
+        except Exception as e:
+            return jsonify(success=False, message="Could not send email. Error: " + str(e))
+        return jsonify(success=True, message="Email sent to " + to_email + " successfully")
+
+# Generic Count database used for storing incrementing values.
+# For now, we are keeping a Count of the rescued animal total 
+# to display on the main page.
+# POST to create a new count
+# GET to view all existing counts
+@app.route('/admin/count', methods=["POST", "GET"])
+@cross_origin(supports_credentials=True)
+def count():
+    if request.method == "GET":
+        all_counts = []
+        for count in Count.query.all():
+            count_json = {"name": count.name, "total": count.total}
+            all_counts.append(count_json)
+        return jsonify({'counts': all_counts})
+    if request.method == "POST":
+        # Add a new running counter to the Count database 
+        new_total = 0
+        if "total" in request.json:
+            new_total = request.json["total"]
+        if "name" in request.json:
+            new_name = request.json["name"]
+        else:
+            return jsonify(success=False, message="'name' not specified in attempt to create new Count")
+        count = Count(name=new_name, total=new_total)
+        db.session.add(count)
+        db.session.commit()
+        return jsonify(success=True, message=name + " count added to table with a count of " + str(new_total))
+
+# Endpoint to update count entries
+# Specifically, updating the "rescues" for the PMMC admins
+# POST a "new_total" to the count to change the total.
+# Note: This is in replacement of the old "Rescues" table.
+@app.route('/admin/count/<name>', methods=["POST"])
+@cross_origin(supports_credentials=True)
+def update_count(name):
+    if request.method == "POST":
+        new_total = 0
+        if "new_total" in request.json:
+            new_total = request.json["new_total"]
+        else:
+            return jsonify(success=False, message="'new_total' not specified in attempt to update the " + name + " count")
+        count = Count.query.filter_by(name=name).first()
+        if count == None:
+            return jsonify(success=False, message="No count named " + name + " exists in this database")
+        count.total = new_total
+        db.session.commit()
+        return jsonify(success=True, message=name + " count updated to " + str(new_total))
+
+@app.route('/api/donation_redirect', methods=["GET"])
+@cross_origin(supports_credentials=True)
+def donation_redirect():
+    if request.method == "GET":
+        visit = DonationVisit(dv_timestamp=datetime.datetime.now())
+        db.session.add(visit)
+        db.session.commit()
+        return redirect(DONATION_URL)
+
+@app.route('/api/donation_visits', methods=["GET"])
+@cross_origin(supports_credentials=True)
+def donation_visits():
+    if request.method == "GET":
+        all_donation_visits = []
+        for dv in DonationVisit.query.all():
+            dv_json = {"id": dv.dvid, "timestamp": dv.dv_timestamp}
+            all_donation_visits.append(dv_json)
+        return jsonify({'donation_visits': all_donation_visits})
+
+# TODO: It might be a good idea to have separate files for the /api/ endpoints and the /admin/ endpoints
+# admin endpoints are tools that are specific will be used by the PMMC folks rather than us.
+# Should Count be an admin tool because they are specifically changing it? 
+# This would make the survey responses admin too...
+# Thinking
 
 @app.route('/')
 def index():

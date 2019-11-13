@@ -19,7 +19,6 @@ class CityImages(db.Model):
     query = db.Column(db.String(128), primary_key=True)
     image = db.Column(db.LargeBinary(1000000), nullable=False)
 
-
 class AnimalLocations(db.Model):
         #Primary key will auto increment
     alid = db.Column(db.Integer, primary_key=True)
@@ -30,10 +29,6 @@ class AnimalLocations(db.Model):
     placement_year = db.Column(db.Integer, nullable=True) # Year the animal was placed
     animal_type = db.Column(db.String(128), nullable=True) # Type of animal (eg. seal, sea lion, harbor seal)
     animal_notes = db.Column(db.String(128), nullable=True) # Any notes or facts about animal
-
-class Rescues(db.Model):
-    rescue_key = db.Column(db.String(128), primary_key=True, nullable=False)
-    rescue_count = db.Column(db.Integer)
 
 class Count(db.Model):
     name = db.Column(db.String(128), primary_key=True, nullable=False)
