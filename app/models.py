@@ -14,6 +14,10 @@ class Location(db.Model):
 class DonationVisit(db.Model):
     dvid = db.Column(db.Integer, primary_key=True)
     dv_timestamp = db.Column(db.DateTime)
+    
+class CityImages(db.Model):
+    query = db.Column(db.String(128), primary_key=True)
+    image = db.Column(db.LargeBinary(1000000), nullable=False)
 
 class AnimalLocations(db.Model):
         #Primary key will auto increment
