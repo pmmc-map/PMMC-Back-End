@@ -27,9 +27,9 @@ def animalLocations():
     if request.method == "GET":
         all_animals = []
         for location in AnimalLocations.query.all():
-            animals_json = {"coordinates": {"latitude" : location.lat, "longitude": location.long}, "animal name": location.animal_name, "location name": location.location_name, "placement year": location.placement_year, "animal type": location.animal_type, "animal_notes": location.animal_notes}
+            animals_json = {"coordinates": {"latitude" : location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes}
             all_animals.append(animals_json)
-        return jsonify({'animal locations': all_animals})
+        return jsonify({'animal_locations': all_animals})
 
     return "No request sent"
 
@@ -43,9 +43,9 @@ def lat_long():
 
         all_animals = []
         for location in AnimalLocations.query.filter(AnimalLocations.lat==lat_data, AnimalLocations.long==long_data).all():
-            animals_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "animal name": location.animal_name, "location name": location.location_name, "placement year": location.placement_year, "animal type": location.animal_type, "animal notes": location.animal_notes}
+            animals_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes}
             all_animals.append(animals_json)
-        return jsonify({"animal locations": all_animals})
+        return jsonify({"animal_locations": all_animals})
 
     return "No request sent"
     
