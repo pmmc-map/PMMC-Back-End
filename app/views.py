@@ -4,11 +4,14 @@ from app import app, db
 from app.models import Location, AnimalLocations, Count, DonationVisit, CityImages
 from app.survey import Question, Response, Option, VisitorResponse
 from app.gmail import send_email
-from flask import jsonify, make_response, request, url_for, redirect
+from flask import jsonify, make_response, request, url_for, redirect, send_file
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
+from toCsv import sql_to_csv
 import urllib
+import io
+from base64 import b64encode
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
@@ -199,13 +202,21 @@ def city_image():
                 req = urllib.request.Request(returned_url, headers={'User-Agent' : "Magic Browser"}) 
                 with urllib.request.urlopen(req) as f:
                     result = f.read()
-                
+                #return str(result)
                 db.session.add(CityImages(query=city, image=result))
                 db.session.commit()
             except:
                 result = db.session.query(CityImages).filter_by(query='seal')
                 db.session.commit() 
                 result = result.first().image
+
+        return jsonify(image=b64encode(result).decode('utf-8'))
+
+        return send_file(
+            io.BytesIO(result),
+            mimetype='image/jpeg',
+            as_attachment=True,
+            attachment_filename='file.jpg')                
 
         response = make_response(result)
         response.headers.set('Content-Type', 'image/jpeg')
@@ -354,7 +365,10 @@ def email():
                 " These files report survey responses, new pin information, and visits to the donation site.\n\n" \
                 " Have a great day!"
         # files = tablesToCsv() ... 
+        
         files = []
+        files.append(sql_to_csv())
+        #return str(files)
         try:
             send_email(to_email, subject, body, files)
         except Exception as e:
