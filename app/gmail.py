@@ -21,13 +21,13 @@ def send_email(to_email, subject, body, files=[]):
         message['Subject'] = subject
         message.attach(MIMEText(body, 'plain'))
 
-        # Test file, will be list of files
-        f = open("Text.txt", "w+")
-        f.write("TEST!!")
-        f.close()
+        # # Test file, will be list of files
+        # f = open("Text.txt", "w+")
+        # f.write("TEST!!")
+        # f.close()
 
         # Open file as binary and read
-        with open("Test.txt", "rb") as f:
+        with open(files[0][1] + ".csv", "rb") as f:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(f.read())
 
