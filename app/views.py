@@ -4,13 +4,12 @@ from app import app, db
 from app.models import Location, AnimalLocations, Count, DonationVisit, CityImages
 from app.survey import Question, Response, Option, VisitorResponse
 from app.gmail import send_email
-from flask import jsonify, make_response, request, url_for, redirect, send_file
+from flask import jsonify, make_response, request, url_for, redirect
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
 from toCsv import sql_to_csv
 import urllib
-import io
 from base64 import b64encode
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
@@ -210,15 +209,7 @@ def city_image():
                 db.session.commit() 
                 result = result.first().image
 
-        # return jsonify(image="hello")
         return jsonify(image=b64encode(result).decode('utf-8'))
-
-        # return send_file(
-        #     io.BytesIO(result),
-        #     mimetype='image/jpeg',
-        #     as_attachment=True,
-        #     attachment_filename='file.jpg')                
-
         # response = make_response(result)
         # response.headers.set('Content-Type', 'image/jpeg')
         # response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
