@@ -193,7 +193,7 @@ def city_image():
         except:
             search_type = "&searchType=image"
             img_size = "&imgSize=large"
-            req_url = FULL_URL + city.replace(' ','%20') + '%20city%20view%20landmark' + search_type + img_size
+            req_url = FULL_URL + city.replace(' ','%20') + '%20city%20landmark' + search_type + img_size
             returned_url = requests.get(req_url).json()
             try:
                 returned_url = returned_url['items'][0]['link']
