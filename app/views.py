@@ -210,7 +210,7 @@ def city_image():
                 db.session.commit() 
                 result = result.first().image
 
-        return jsonify(image="hello")
+        # return jsonify(image="hello")
         return jsonify(image=b64encode(result).decode('utf-8'))
 
         # return send_file(
