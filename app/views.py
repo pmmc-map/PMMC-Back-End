@@ -210,18 +210,19 @@ def city_image():
                 db.session.commit() 
                 result = result.first().image
 
+        return jsonify(image="hello")
         return jsonify(image=b64encode(result).decode('utf-8'))
 
-        return send_file(
-            io.BytesIO(result),
-            mimetype='image/jpeg',
-            as_attachment=True,
-            attachment_filename='file.jpg')                
+        # return send_file(
+        #     io.BytesIO(result),
+        #     mimetype='image/jpeg',
+        #     as_attachment=True,
+        #     attachment_filename='file.jpg')                
 
-        response = make_response(result)
-        response.headers.set('Content-Type', 'image/jpeg')
-        response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
-        return response, 200 
+        # response = make_response(result)
+        # response.headers.set('Content-Type', 'image/jpeg')
+        # response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
+        # return response, 200 
 
 # GETs all questions in questions database table
 # POST a new question with provided text
