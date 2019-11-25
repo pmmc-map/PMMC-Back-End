@@ -233,7 +233,7 @@ def all_questions():
         question = Question(text=question_text, active=True)
         db.session.add(question)
         db.session.commit()
-        return jsonify(success=True, message="New question added")  
+        return jsonify(success=True, message="New question added", qid=question.qid)  
     if request.method == "DELETE":
         qid = request.json["qid"]
         question = Question.query.filter_by(qid=qid).first()
