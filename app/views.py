@@ -8,9 +8,9 @@ from flask import jsonify, make_response, request, url_for, redirect
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
-from toCsv import sql_to_csv
 import urllib
 from base64 import b64encode
+import toCsv
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
@@ -29,17 +29,6 @@ class InvalidLocationError(Exception):
 
 class InWaterError(Exception):
     pass
-
-def sql_to_csv(tables=[Question, Response, Option], key='qid', name='mydump'):
-    combined = db.session.query(*tables)
-    for table in tables[1:]:
-        combined = combined.join(table)#, tables[0].qid == table.qid) USE IF NOT USING FOREIGN KEYS
-
-    df = pd.read_sql(combined.statement, db.session.bind)
-    df = df.loc[:,~df.columns.duplicated()]
-    del df[key] 
-    df.to_csv(name, index=False) 
-    return open(name + '.csv', 'w'), name 
 
 def get_location_data(lat, long):
     vars = {"key": GEO_API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
@@ -356,12 +345,9 @@ def email():
         body = "Hello!\n\nAttached are the analytics spreadsheet files." \
                 " These files report survey responses, new pin information, and visits to the donation site.\n\n" \
                 " Have a great day!"
-        # files = tablesToCsv() ... 
-        
-        files = []
-        files.append(sql_to_csv())
-        #return str(files)
+ 
         try:
+            files = [toCsv.survey_to_csv(), toCsv.pin_to_csv(), toCsv.donation_to_csv()]
             send_email(to_email, subject, body, files)
         except Exception as e:
             return jsonify(success=False, message="Could not send email. Error: " + str(e))
