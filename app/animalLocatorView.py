@@ -7,6 +7,7 @@ from base64 import b64encode
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 REV_GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
 
+
 class InvalidLocationError(Exception):
     pass
 
@@ -48,7 +49,7 @@ def animalLocationsAddress():
         db.session.commit()
 
         return jsonify(success=True, lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, message = "Added to database")
-    
+
     if request.method == "GET":
         all_animals = []
         for location in AnimalLocations.query.all():
@@ -57,6 +58,7 @@ def animalLocationsAddress():
         return jsonify({'animal_locations': all_animals})
 
     return "No request sent"
+
 
 # general endpoint used when latitude, longitude known
 @app.route('/api/animal_locations', methods=['GET', 'POST'])
@@ -105,4 +107,3 @@ def lat_long():
         return jsonify({"animal_locations": all_animals})
 
     return "No request sent"
-    
