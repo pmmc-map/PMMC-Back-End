@@ -2,9 +2,10 @@ from app import app, db
 from app.models import AnimalLocations
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
-
+from flask_cors import CORS, cross_origin
 
 @app.route('/api/animal_locations', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
 def animalLocations():
     print("request ", request)
     if request.method == "POST":
@@ -36,6 +37,7 @@ def animalLocations():
 
 
 @app.route('/api/animal_locations/lat_long', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def lat_long():
     if request.method == "GET":
         lat_data = request.args.get('latitude')

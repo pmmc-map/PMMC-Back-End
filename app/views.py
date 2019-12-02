@@ -9,6 +9,8 @@ import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
 import urllib
+from base64 import b64encode
+import toCsv
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
@@ -27,17 +29,6 @@ class InvalidLocationError(Exception):
 
 class InWaterError(Exception):
     pass
-
-def sql_to_csv(tables=[Question, Response, Option], key='qid', name='mydump'):
-    combined = db.session.query(*tables)
-    for table in tables[1:]:
-        combined = combined.join(table)#, tables[0].qid == table.qid) USE IF NOT USING FOREIGN KEYS
-
-    df = pd.read_sql(combined.statement, db.session.bind)
-    df = df.loc[:,~df.columns.duplicated()]
-    del df[key] 
-    df.to_csv(name, index=False) 
-    return open(name + '.csv', 'w'), name 
 
 def get_location_data(lat, long):
     vars = {"key": GEO_API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
@@ -136,12 +127,12 @@ def location_counts():
     total_visitors = Location.query.count()
     country_count = Location.query.with_entities(Location.country).distinct().count()
     state_count = Location.query.filter_by(country="USA").with_entities(Location.state).distinct().count()
-    # Confirm that these are equivalent
-    # states = set()
-    # for l in Location.query.all():
-    #     if l.country == "USA":
-    #         states.add(l.state)
-    # state_count = len(states)
+    if request.args.get("country") and request.args.get("state"):
+        selected_state = request.args.get("state")
+        selected_country = request.args.get("country")
+        selected_state_count = Location.query.filter_by(state=selected_state).with_entities(Location.state).distinct().count()
+        selected_country_count = Location.query.filter_by(country=selected_country).with_entities(Location.state).distinct().count()
+        return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unqiue_countries=country_count, this_state_count = selected_state_count, this_country_count = selected_country_count)
     return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unqiue_countries=country_count)
 
 # GETs location based on country name
@@ -191,7 +182,7 @@ def city_image():
         except:
             search_type = "&searchType=image"
             img_size = "&imgSize=large"
-            req_url = FULL_URL + city.replace(' ','%20') + '%20city%20view%20landmark' + search_type + img_size
+            req_url = FULL_URL + city.replace(' ','%20') + '%20city%20landmark' + search_type + img_size
             returned_url = requests.get(req_url).json()
             try:
                 returned_url = returned_url['items'][0]['link']
@@ -199,7 +190,7 @@ def city_image():
                 req = urllib.request.Request(returned_url, headers={'User-Agent' : "Magic Browser"}) 
                 with urllib.request.urlopen(req) as f:
                     result = f.read()
-                
+                #return str(result)
                 db.session.add(CityImages(query=city, image=result))
                 db.session.commit()
             except:
@@ -207,10 +198,11 @@ def city_image():
                 db.session.commit() 
                 result = result.first().image
 
-        response = make_response(result)
-        response.headers.set('Content-Type', 'image/jpeg')
-        response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
-        return response, 200 
+        return jsonify(image=b64encode(result).decode('utf-8'))
+        # response = make_response(result)
+        # response.headers.set('Content-Type', 'image/jpeg')
+        # response.headers.set('Content-Disposition', 'attachment', filename='test.jpg')
+        # return response, 200 
 
 # GETs all questions in questions database table
 # POST a new question with provided text
@@ -230,7 +222,7 @@ def all_questions():
         question = Question(text=question_text, active=True)
         db.session.add(question)
         db.session.commit()
-        return jsonify(success=True, message="New question added")  
+        return jsonify(success=True, message="New question added", qid=question.qid)  
     if request.method == "DELETE":
         qid = request.json["qid"]
         question = Question.query.filter_by(qid=qid).first()
@@ -353,9 +345,9 @@ def email():
         body = "Hello!\n\nAttached are the analytics spreadsheet files." \
                 " These files report survey responses, new pin information, and visits to the donation site.\n\n" \
                 " Have a great day!"
-        # files = tablesToCsv() ... 
-        files = []
+ 
         try:
+            files = [toCsv.survey_to_csv(), toCsv.pin_to_csv(), toCsv.donation_to_csv()]
             send_email(to_email, subject, body, files)
         except Exception as e:
             return jsonify(success=False, message="Could not send email. Error: " + str(e))
