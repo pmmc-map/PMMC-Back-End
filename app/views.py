@@ -346,7 +346,7 @@ def email():
         subject = "Map Application Data " + str(datetime.datetime.now().strftime("%Y-%m-%d"))
         body = "Hello!\n\nAttached are the analytics spreadsheet files." \
                 " These files report survey responses, new pin information, and visits to the donation site.\n\n" \
-                " Have a great day!"
+                " Have a great day!\n\n"
  
         try:
             files = [toCsv.survey_to_csv(), toCsv.pin_to_csv(), toCsv.donation_to_csv()]
