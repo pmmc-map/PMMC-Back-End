@@ -1,21 +1,35 @@
 import csv
 import pandas as pd
 from app import app, db
-from app.models import Location, AnimalLocations, Count, DonationVisit, CityImages
-from app.survey import Question, Response, Option, VisitorResponse
+import json
+from app.models import Location, AnimalLocations, Count, DonationVisit, CityImages, AdminLogin
+from app.survey import Question, Option, VisitorResponse
 from app.gmail import send_email
-from flask import jsonify, make_response, request, url_for, redirect
+from flask import jsonify, make_response, request, url_for, redirect, g
 import requests, datetime, urllib
 from flask_cors import CORS, cross_origin
 from math import cos, asin, sqrt
 import urllib
+
+from app.toCsv import sql_to_csv
+sql_to_csv([Question])
+
+
+from jwt import decode, exceptions
+
+try:
+    db.session.add(AdminLogin(googleID='109305513013129297314',name='Map Account', email='mapanalyticspmmc@gmail.com'))
+    db.session.commit()
+except:
+    pass
+
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
 PMMC_LAT = 33.5729488
 PMMC_LONG = -117.7624671
 
-IMAGE_API_CX = "006863879937283909592:yqzj4vzeazr"
+IMAGE_API_CX = "ode:yqzj4vzeazr"
 IMAGE_API_KEY = 'AIzaSyBD8SsoOb7ZbeKM-_4D1dPvXRQggTqLoR8'
 IMAGE_API_URL = 'https://www.googleapis.com/customsearch/v1'
 FULL_URL = IMAGE_API_URL + "?key=" + IMAGE_API_KEY + "&cx=" + IMAGE_API_CX + "&q="
@@ -27,17 +41,6 @@ class InvalidLocationError(Exception):
 
 class InWaterError(Exception):
     pass
-
-def sql_to_csv(tables=[Question, Response, Option], key='qid', name='mydump'):
-    combined = db.session.query(*tables)
-    for table in tables[1:]:
-        combined = combined.join(table)#, tables[0].qid == table.qid) USE IF NOT USING FOREIGN KEYS
-
-    df = pd.read_sql(combined.statement, db.session.bind)
-    df = df.loc[:,~df.columns.duplicated()]
-    del df[key] 
-    df.to_csv(name, index=False) 
-    return open(name + '.csv', 'w'), name 
 
 def get_location_data(lat, long):
     vars = {"key": GEO_API_KEY, "q": str(lat) + " " + str(long), "pretty": 1}
@@ -72,6 +75,30 @@ def calculate_distance(lat1, lon1, lat2, lon2):
     a = 0.5 - cos((lat2 - lat1) * p)/2 + cos(lat1 * p) * cos(lat2 * p) * (1 - cos((lon2 - lon1) * p)) / 2
     return 12742 * asin(sqrt(a)) * 0.621371
 
+
+@app.route('/flask/auth', methods=["POST"])
+@cross_origin() 
+def auth(): 
+    if request.method == 'POST':
+        if request.headers['Content-Type'] == 'application/json':
+            authorization = json.loads(request.headers.get("authorization", None))
+            if authorization: 
+                try:
+                    resp = decode(authorization["Zi"]["id_token"], None, verify=False, algorithms=['HS256'])
+                    g.user = resp['sub']
+                except exceptions.DecodeError as identifier:
+                    return json.dumps({'error': 'invalid authorization token'}), 403
+                
+                profile = authorization["profileObj"]
+                name = profile['name']
+                email = profile['email']
+                googleID = profile['googleId']
+
+                rows = AdminLogin.query.filter_by(name=name, email=email, googleID=googleID).count()
+                print(rows)
+                return json.dumps({'authorized': rows == 1}), 200
+            else:
+                return json.dumps({'authorized': 0}), 200
 
 # Sends city, state, location data for a pending pin
 @app.route('/api/geocoder', methods=['POST'])
