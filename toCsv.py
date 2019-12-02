@@ -1,30 +1,41 @@
 import csv
-import pandas as pd
 from app import app, db
-from app.models import Location, CityImages
-from app.survey import Question, VisitorResponse, Option
-from flask_cors import CORS, cross_origin
+from app.models import Location, CityImages, DonationVisit
+from app.survey import Question, Option, VisitorResponse
 
-def sql_to_csv(tables=[Question, VisitorResponse, Option], key='qid', name='mydump'):
-    tables = [Question, Option]
-    combined = db.session.query(Question)
-    #print(combined)
-    #exit()
-    combined = combined.join(Option)
-    print("------Combined 1-------")
-    print(combined)
-    print("------Combined 2-------")
-    combined = combined.join(VisitorResponse)
-    print(combined)
-    # for table in tables[1:]:
-    #     combined = combined.join(table)#, tables[0].qid == table.qid) USE IF NOT USING FOREIGN KEYS
-    
-    df = pd.read_sql(combined.statement, db.session.bind)
-    df = df.loc[:,~df.columns.duplicated()]
-    del df[key] 
-    df.to_csv(name, index=False)
-    print(df)
-    return open(name + '.csv', 'w'), name
+def survey_to_csv():
+	submitted = VisitorResponse.query.join(Option).add_columns(VisitorResponse.vr_timestamp, Option.text.label("option_text")).filter_by(oid=Option.oid).join(Question).add_columns(Question.text.label("question_text")).filter_by(qid=Question.qid).all()
 
-if __name__=="__main__":
-    sql_to_csv()
+	with open('survey.csv', 'w') as f:
+		out = csv.writer(f)
+		out.writerow(['question', 'option_selected', 'timestamp'])
+
+		for item in submitted:
+			out.writerow([item.question_text, item.option_text, item.vr_timestamp])
+	return open('survey.csv', 'rb')
+
+def pin_to_csv():
+	submitted = Location.query.all()
+
+	with open('pin_info.csv', 'w') as f:
+		out = csv.writer(f)
+		out.writerow(['city', 'state', 'country', 'visit_date'])
+
+		for item in submitted:
+			out.writerow([item.city, item.state, item.country, item.visit_date])
+	return open('pin_info.csv', 'rb')
+
+def donation_to_csv():
+	submitted = DonationVisit.query.all()
+
+	with open('donation_visits.csv', 'w') as f:
+		out = csv.writer(f)
+		out.writerow(['visit_counter', 'timestamp'])
+
+		for item in submitted:
+			out.writerow([item.dvid, item.dv_timestamp])
+	return open('donation_visits.csv', 'rb')
+
+# if __name__=="__main__":
+# 	survey_to_csv()
+# 	pin_to_csv()
