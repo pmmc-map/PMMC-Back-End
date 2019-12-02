@@ -66,6 +66,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 
 # Sends city, state, location data for a pending pin
 @app.route('/api/geocoder', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def pending_pin():
     if request.method == "POST":
         lat_data = request.json["lat"]
@@ -150,6 +151,7 @@ def country(country_name):
         return jsonify({'locations': all_locations})
 
 @app.route('/api/locations/city/<city_name>', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def city(city_name):
     if request.method == "GET":
         all_locations = []
