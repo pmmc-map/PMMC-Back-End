@@ -1,6 +1,6 @@
 from app import app, db
 from app.survey import Question, Option
-from app.models import AnimalLocations, CityImages
+from app.models import AnimalLocations, CityImages, Count
 from questionsParser import addQuestions
 from optionsParser import addOptions
 from animalsParser import addAnimals
@@ -57,8 +57,21 @@ def addDefaultImage():
 
     print(db.session.query(CityImages).all())
 
+def addCount():
+    print("\n----------ADDING 0 'num_rescues' COUNT TO DATABASE----\nEmptying current Count table...\n")
+    try:
+        Count.__table__.drop(db.engine)
+    except:
+        pass
+    db.create_all()
+    db.session.add(Count(name='num_rescues', total=0))
+    db.session.commit()
+
+    print(Count.query.all())
+
 if __name__=="__main__":
     verboseAddQuestions()
     verboseAddOptions()
     verboseAddAnimals()
     addDefaultImage()
+    addCount()
