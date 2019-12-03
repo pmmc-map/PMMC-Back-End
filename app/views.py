@@ -12,15 +12,7 @@ from math import cos, asin, sqrt
 import urllib
 from base64 import b64encode
 import toCsv
-
-from app.toCsv import sql_to_csv
-sql_to_csv([Question])
-
-
 from jwt import decode, exceptions
-
-
-
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
@@ -75,7 +67,7 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 
 
 @app.route('/flask/auth', methods=["POST"])
-@cross_origin() 
+@cross_origin(supports_credentials=True) 
 def auth(): 
     if request.method == 'POST':
         if request.headers['Content-Type'] == 'application/json':
@@ -145,7 +137,6 @@ def locations():
                        city_count = city_count, state_count = state_count, country_count = country_count,
                        message="Added to database", distance = distance)
                        
-
     if request.method == "GET":
         # This is like querying the database for all pinned locations
         all_locations = []
@@ -291,7 +282,6 @@ def question(qid):
         question.active = False
         db.session.commit()
         return jsonify(success=True, message="Question deleted (set to inactive)")
-
 
 # GET all options, mainly for debugging
 # DELETE a option by oid
