@@ -221,7 +221,7 @@ def city_image():
                 db.session.add(CityImages(query=city, image=result))
                 db.session.commit()
             except:
-                result = db.session.query(CityImages).filter_by(query='seal')
+                result = db.session.query(CityImages).filter_by(query='default_city')
                 db.session.commit() 
                 result = result.first().image
 

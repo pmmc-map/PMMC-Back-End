@@ -1,6 +1,6 @@
 from app import app, db
 from app.survey import Question, Option
-from app.models import AnimalLocations
+from app.models import AnimalLocations, CityImages
 from questionsParser import addQuestions
 from optionsParser import addOptions
 from animalsParser import addAnimals
@@ -42,10 +42,23 @@ def verboseAddAnimals():
     for animal in AnimalLocations.query.all():
         print("Animal(s): " + animal.animal_name + "\n\tLocation: " + str(animal.location_name) + "\n\t...")
 
+def addDefaultImage():
+    print("\n----------ADDING DEFAULT IMAGE TO DATABASE----\nEmptying current CityImages table...\n")
+    try:
+        CityImages.__table__.drop(db.engine)
+    except:
+        pass
+
+    db.create_all()
+    f = open("static/default_city.jpg", 'rb')
+    image_data = f.read()
+    db.session.add(CityImages(query="default_city", image=image_data))
+    db.session.commit()
+
+    print(db.session.query(CityImages).all())
+
 if __name__=="__main__":
     verboseAddQuestions()
     verboseAddOptions()
     verboseAddAnimals()
-    #addQuestions()
-    #addOptions()
-    #addAnimals()
+    addDefaultImage()
