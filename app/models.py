@@ -33,3 +33,8 @@ class AnimalLocations(db.Model):
 class Count(db.Model):
     name = db.Column(db.String(128), primary_key=True, nullable=False)
     total = db.Column(db.Integer)
+
+class AdminLogin(db.Model):
+    googleID = db.Column(db.String(128), primary_key=True, nullable=False)
+    name = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(128), nullable=False)

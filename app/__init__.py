@@ -10,3 +10,8 @@ from app import views, models, animalLocatorView
 
 db.create_all()
 
+try:
+    db.session.add(AdminLogin(googleID='109305513013129297314',name='Map Account', email='mapanalyticspmmc@gmail.com'))
+    db.session.commit()
+except:
+    pass
