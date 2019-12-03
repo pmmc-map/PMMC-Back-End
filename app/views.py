@@ -17,11 +17,7 @@ sql_to_csv([Question])
 
 from jwt import decode, exceptions
 
-try:
-    db.session.add(AdminLogin(googleID='109305513013129297314',name='Map Account', email='mapanalyticspmmc@gmail.com'))
-    db.session.commit()
-except:
-    pass
+
 
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
