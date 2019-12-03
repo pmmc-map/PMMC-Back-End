@@ -4,6 +4,7 @@ from app.models import AnimalLocations, CityImages, Count
 from questionsParser import addQuestions
 from optionsParser import addOptions
 from animalsParser import addAnimals
+import base64
 
 def verboseAddQuestions():
     print("\n----------ADDING QUESTIONS----------\nEmptying current Question table...")
@@ -52,7 +53,8 @@ def addDefaultImage():
     db.create_all()
     f = open("static/default_city.jpg", 'rb')
     image_data = f.read()
-    db.session.add(CityImages(query="default_city", image=image_data))
+    image_b64 = base64.b64encode(image_data).decode('utf-8')
+    db.session.add(CityImages(query="default_city", image=image_b64))
     db.session.commit()
 
     print(db.session.query(CityImages).all())
