@@ -20,6 +20,7 @@ PMMC_LAT = 33.5729488
 PMMC_LONG = -117.7624671
 
 IMAGE_API_CX = "ode:yqzj4vzeazr"
+IMAGE_API_CX = "006863879937283909592:yqzj4vzeazr"
 IMAGE_API_KEY = 'AIzaSyBD8SsoOb7ZbeKM-_4D1dPvXRQggTqLoR8'
 IMAGE_API_URL = 'https://www.googleapis.com/customsearch/v1'
 FULL_URL = IMAGE_API_URL + "?key=" + IMAGE_API_KEY + "&cx=" + IMAGE_API_CX + "&q="
