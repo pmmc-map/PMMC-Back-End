@@ -16,10 +16,7 @@ if __name__=="__main__":
         if(list[7] != ""):
             file = open(list[7], "rb")
             image = file.read()
-            #b64_image = b64encode(image).decode('utf-8')
-
-            #print(type(b64_image))
-        
+            
         animal = AnimalLocations(animal_name=list[2], lat=list[5], long=list[6], location_name=list[0], placement_year=list[1], animal_type=list[3], animal_notes=list[4], animal_images=image)
         db.session.add(animal)
         db.session.commit()
