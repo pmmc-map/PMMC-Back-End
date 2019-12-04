@@ -3,10 +3,10 @@ from app.models import AnimalLocations
 from flask import jsonify, make_response, request, url_for
 import requests, datetime, urllib
 from base64 import b64encode
+from flask_cors import CORS, cross_origin
 
 GEO_API_KEY = 'ff8f4b0a5a464a27827c362ee3b64ae0'
 REV_GEO_BASE_URL = 'https://api.opencagedata.com/geocode/v1/json?'
-
 
 class InvalidLocationError(Exception):
     pass
@@ -72,6 +72,7 @@ def animalLocationsAddress():
 
 # general endpoint used when latitude, longitude known
 @app.route('/api/animal_locations', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
 def animalLocations():
     if request.method == "POST":
         lat_data = request.json["lat"]
@@ -99,7 +100,6 @@ def animalLocations():
 
     if request.method == "GET":
         all_animals = []
-        
         for location in AnimalLocations.query.all():        
             image = ""
             if location.animal_images != None:
@@ -114,6 +114,7 @@ def animalLocations():
 
 # end point used to retrieve all animals at a particular latitude/longitude
 @app.route('/api/animal_locations/lat_long', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def lat_long():
     if request.method == "GET":
         lat_data = request.args.get('latitude')

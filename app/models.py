@@ -11,8 +11,16 @@ class Location(db.Model):
     # Might need to filter visitors by month eventually
     visit_date = db.Column(db.DateTime, nullable=True)
 
+class DonationVisit(db.Model):
+    dvid = db.Column(db.Integer, primary_key=True)
+    dv_timestamp = db.Column(db.DateTime)
+
+class CityImages(db.Model):
+    query = db.Column(db.String(128), primary_key=True)
+    image = db.Column(db.LargeBinary(1000000), nullable=False)
+
 class AnimalLocations(db.Model):
-        #Primary key will auto increment
+    #Primary key will auto increment
     alid = db.Column(db.Integer, primary_key=True)
     animal_name = db.Column(db.String(128), nullable=False)
     long = db.Column(db.Float, nullable=False)
@@ -26,3 +34,12 @@ class AnimalLocations(db.Model):
 class Response(db.Model):
     # I have no idea what the fields will be
     rid = db.Column(db.Integer, primary_key=True)
+
+class Count(db.Model):
+    name = db.Column(db.String(128), primary_key=True, nullable=False)
+    total = db.Column(db.Integer)
+
+class AdminLogin(db.Model):
+    googleID = db.Column(db.String(128), primary_key=True, nullable=False)
+    name = db.Column(db.String(128), nullable=False)
+    email = db.Column(db.String(128), nullable=False)
