@@ -1,17 +1,17 @@
-Oklahoma Zoo*2003*Pearl and Xander*Sea Lion*Pearl has had several pups and Xander was the father*35.525195*-97.473662*static/default_mammal.png
-Smithsonian Zoo Washington DC*2006*Summer & Calli*Sea Lion*Calli has given birth several pups*38.93026*-77.055426*static/default_mammal.png
+Oklahoma Zoo*2003*Pearl and Xander*Sea Lion*Pearl has had several pups and Xander was the father*35.525195*-97.473662*static/default_mammal.jpg
+Smithsonian Zoo Washington DC*2006*Summer & Calli*Sea Lion*Calli has given birth several pups*38.93026*-77.055426*static/default_mammal.jpg
 Denver Zoo*2006*Nick*Sea Lion*Now an adult male, has fathered pups*39.75118*-104.948906*static/nick_by_wl.jpg2.jpg
 Institute for Marine Mammal Studies in Louisiana*2013*Sage*Sea Lion**30.422618*-89.025583*static/Sage.jpg
-Audubon Zoo in New Orleans*2014*Roux & Huey*Sea Lion**29.924773*-90.128014*static/default_mammal.png
-Mystic Aquarium in CT*2015*Adrak*Northern Fur Seal*Male*41.372631*-71.951268*static/default_mammal.png
-New England Aquarium in Boston, MA*2015*Luna*Northern Fur Seal*Female*42.35899*-71.050668*static/default_mammal.png
+Audubon Zoo in New Orleans*2014*Roux & Huey*Sea Lion**29.924773*-90.128014*static/default_mammal.jpg
+Mystic Aquarium in CT*2015*Adrak*Northern Fur Seal*Male*41.372631*-71.951268*static/default_mammal.jpg
+New England Aquarium in Boston, MA*2015*Luna*Northern Fur Seal*Female*42.35899*-71.050668*static/default_mammal.jpg
 Buffalo Zoo in NY*2015*Toasty & Starburst*Sea Lion*Starburst gave birth to pup this year*42.935884*-78.851009*static/Toasty242onoct18.JPG
 LA Zoo, CA*2016*Ziggy*Harbor Seal**34.148356*-118.283372*static/Ziggyfeb11.JPG
 Animal Training & Research Int’l in Moss Landing, CA*2016*Oogie & Tiny*Sea Lion**36.794931*-121.785283*static/Oogie702SWposingoct28.JPG
 Sarasota Sea Lion Preserve Myakka City, FL*2017*Avocado*Sea lion**27.342202*-82.1719*static/Avocadolongwhiskersdec15.JPG
-Oceans of Fun Wisconsin*2017*Moana*Sea lion**43.034711*-88.040934*static/default_mammal.png
-Georgia Aquarium*2017*Hunter*Sea lion**33.762275*-84.394119*static/default_mammal.png
+Oceans of Fun Wisconsin*2017*Moana*Sea lion**43.034711*-88.040934*static/default_mammal.jpg
+Georgia Aquarium*2017*Hunter*Sea lion**33.762275*-84.394119*static/default_mammal.jpg
 Aquarium of Niagara*2018*Lumiere*Harbor Seal**43.094062*-79.060676*static/lumierecroppedjul4.jpg
-Brookfield Zoo, Chicago*2019*Carolyn*Sea lion**41.835082*-87.843256*static/default_mammal.png
-UC Santa Cruz Pinniped Sensory Lab, CA*200*Danielle*Sea lion**36.977237*-122.050731*static/default_mammal.png
+Brookfield Zoo, Chicago*2019*Carolyn*Sea lion**41.835082*-87.843256*static/default_mammal.jpg
+UC Santa Cruz Pinniped Sensory Lab, CA*200*Danielle*Sea lion**36.977237*-122.050731*static/default_mammal.jpg
 Sea Life Park Hawaii*2019*Brawler & Niblet*Sea lion**21.315336*-157.66322*static/Brawleronapr20.jpg
