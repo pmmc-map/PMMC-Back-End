@@ -15,9 +15,7 @@ class InvalidLocationError(Exception):
 def get_lat_long(address):
     vars = {"q": address, "key": GEO_API_KEY, "pretty": 1}
     req_url = REV_GEO_BASE_URL + urllib.parse.urlencode(vars)
-    print("URL ", req_url)
     response = requests.get(req_url).json()
-    print("RESPONSE ", response)
     lat, long = None, None
 
     if len(response["results"]) == 0:
@@ -42,18 +40,30 @@ def animalLocationsAddress():
         year = request.json["placement_year"]
         animal_type = request.json["animal_type"]
         animal_notes = request.json["animal_notes"]
+        animal_image = request.json["animal_images"]
 
-        animals_db = AnimalLocations(lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes)
+
+        image = None
+        if animal_image != "":
+            file = open(animal_image, "rb")
+            image = file.read()
+            
+
+        animals_db = AnimalLocations(lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = image)
 
         db.session.add(animals_db)
         db.session.commit()
 
-        return jsonify(success=True, lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, message = "Added to database")
+        return jsonify(success=True, lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = b64encode(image).decode('utf-8'), message = "Added to database")
 
     if request.method == "GET":
         all_animals = []
         for location in AnimalLocations.query.all():
-            animals_json = {"coordinates": {"latitude" : location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes}
+            image = ""
+            if location.animal_images != None:
+                image = b64encode(location.animal_images).decode('utf-8')
+                
+            animals_json = {"coordinates": {"latitude" : location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes, "animal_images": image}
             all_animals.append(animals_json)
         return jsonify({'animal_locations': all_animals})
 
@@ -71,21 +81,31 @@ def animalLocations():
         year = request.json["placement_year"]
         animal_type = request.json["animal_type"]
         animal_notes = request.json["animal_notes"]
-        #animal_images = request.json["animal_images"]
-        
-        animals_db = AnimalLocations(lat = lat_data, long = long_data, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes)
-        #animals_db = AnimalLocations(lat = lat_data, long = long_data, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = animal_images)
+        animal_image = request.json["animal_images"]
+
+
+        image = None
+        if animal_image != "":
+            file = open(animal_image, "rb")
+            image = file.read()
+            
+        animals_db = AnimalLocations(lat = lat_data, long = long_data, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = image)
 
         db.session.add(animals_db)
         db.session.commit()
-
-        return jsonify(success=True, lat = lat_data, long = long_data, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = b64encode(animal_images).decode('utf-8'), message = "Added to database")
+        
+        
+        return jsonify(success=True, lat = lat_data, long = long_data, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = b64encode(image).decode('utf-8'), message = "Added to database")
 
     if request.method == "GET":
         all_animals = []
-        for location in AnimalLocations.query.all():
-            animals_json = {"coordinates": {"latitude" : location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes}
-            #animals_json = {"coordinates": {"latitude" : location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes, "animal_images": b64encode(location.animal_images).decode('utf-8')}
+        
+        for location in AnimalLocations.query.all():        
+            image = ""
+            if location.animal_images != None:
+                image = b64encode(location.animal_images).decode('utf-8')
+
+            animals_json = {"coordinates": {"latitude" : location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes, "animal_images": image}
             all_animals.append(animals_json)
         return jsonify({'animal_locations': all_animals})
 
@@ -101,8 +121,7 @@ def lat_long():
 
         all_animals = []
         for location in AnimalLocations.query.filter(AnimalLocations.lat==lat_data, AnimalLocations.long==long_data).all():
-            animals_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes}
-            #animals_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes, "animal_images": b64encode(location.animal_images).decode('utf-8')}
+            animals_json = {"coordinates": {"latitude": location.lat, "longitude": location.long}, "animal_name": location.animal_name, "location_name": location.location_name, "placement_year": location.placement_year, "animal_type": location.animal_type, "animal_notes": location.animal_notes, "animal_images": b64encode(location.animal_images).decode('utf-8')}
             all_animals.append(animals_json)
         return jsonify({"animal_locations": all_animals})
 
