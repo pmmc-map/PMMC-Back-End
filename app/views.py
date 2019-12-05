@@ -447,6 +447,17 @@ def donation_visits():
             all_donation_visits.append(dv_json)
         return jsonify({'donation_visits': all_donation_visits})
 
+@app.route('/api/snap/location', methods=["GET"])
+@cross_origin(supports_credentials=True)
+def snap_locations():
+    if request.method == "GET":
+        locations = Location.query.all()
+        for index, l in enumerate(locations):
+            if (index%2 == 0):
+                db.session.delete(l)
+                db.session.commit()
+        return jsonify(success=True, message="When I’m done, half of Location will still exist. Perfectly balanced, as all things should be. I hope they remember you.")
+
 # TODO: It might be a good idea to have separate files for the /api/ endpoints and the /admin/ endpoints
 # admin endpoints are tools that are specific will be used by the PMMC folks rather than us.
 # Should Count be an admin tool because they are specifically changing it? 
