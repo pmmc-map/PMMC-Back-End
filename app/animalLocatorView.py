@@ -49,7 +49,7 @@ def animalLocationsAddress():
         except:
             return jsonify(success=False, message="default image not found")         
 
-        animals_db = AnimalLocations(lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes)
+        animals_db = AnimalLocations(lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = image)
 
         db.session.add(animals_db)
         db.session.commit()
