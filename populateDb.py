@@ -8,9 +8,7 @@ from animalsParser import addAnimals
 def verboseAddQuestions():
     print("\n----------ADDING QUESTIONS----------\nEmptying current Question table...")
     try:
-        #Question.__table__.drop(db.engine)
-        db.session.query(Question).delete()
-        db.session.commit()
+        Question.__table__.drop(db.engine)
     except:
         pass
     db.create_all()
@@ -22,8 +20,7 @@ def verboseAddQuestions():
 def verboseAddOptions():
     print("\n----------ADDING OPTIONS----------\nEmptying current Option table...")
     try:
-        db.session.query(Option).delete()
-        db.session.commit()    
+        Option.__table__.drop(db.engine)
     except:
         pass
     db.create_all()
@@ -35,8 +32,7 @@ def verboseAddOptions():
 def verboseAddAnimals():
     print("\n----------ADDING ANIMALS----------\nEmptying current AnimalLocation table...\n")
     try:
-        db.session.query(AnimalLocations).delete()
-        db.session.commit()    
+        AnimalLocations.__table__.drop(db.engine)
     except:
         pass
 
@@ -49,8 +45,7 @@ def verboseAddAnimals():
 def addDefaultImage():
     print("\n----------ADDING DEFAULT IMAGE TO DATABASE----\nEmptying current CityImages table...\n")
     try:
-        db.session.query(CityImages).delete()
-        db.session.commit()          
+        CityImages.__table__.drop(db.engine)
     except:
         pass
 
@@ -65,8 +60,7 @@ def addDefaultImage():
 def addCount():
     print("\n----------ADDING 0 'num_rescues' COUNT TO DATABASE----\nEmptying current Count table...\n")
     try:
-        db.session.query(Count).delete()
-        db.session.commit()            
+        Count.__table__.drop(db.engine)
     except:
         pass
     db.create_all()
@@ -78,8 +72,7 @@ def addCount():
 def addAdmin():
     print("\n----------ADDING ADMIN LOGIN INFO TO DB----------\nEmptying current AdminLogin table...\n")
     try:
-        db.session.query(AdminLogin).delete()
-        db.session.commit()                   
+        AdminLogin.__table__.drop(db.engine)
     except:
         pass
     db.create_all()
