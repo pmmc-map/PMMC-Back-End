@@ -159,7 +159,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Input paramets: JSON body with required parameters: 'animal_name', 'address', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 * Response: Success along with JSON of added fields
 
-'''
+```
 {
   "animal_name": "Nick",
   "address": "2300 Steele St, Denver, CO 80205",
@@ -169,14 +169,14 @@ You can now access the 54.183.19.24 in a browser from any IP.
   "placement_year": 2006,
   "animal_images": "PMMC_images/nick_by_wl.jpg2.jpg"
 }
-'''
+```
 
 ### GET /api/animal_locations/address
 * Retrieves the information about the placed animal
 * Input parameters: None
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 
-'''
+```
 {
   "animal_location": [
     {
@@ -200,7 +200,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
     }
   ]
 }
-'''
+```
 
 ### POST /api/animal_locations
 * Adds the information about an animal that has been rescued and placed
@@ -208,7 +208,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Input paramets: JSON body with required parameters: 'animal_name', 'lat', 'long', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 * Response: Success along with JSON of added fields
 
-'''
+```
 {
 	"animal_name": "Nick",
     "animal_notes": "Now an adult male, has fathered pups",
@@ -219,7 +219,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
     "placement_year": 2006,
     "animal_images": "PMMC_images/nick_by_wl.jpg2.jpg"
 }
-'''
+```
 
 ### GET /api/animal_locations
 * Retrieves the information about the placed animal
@@ -227,9 +227,9 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'address', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 
 ### GET /api/animal_locations/lat_long
-'''
+```
 /api/animal_locations/lat_long?latitude=39.75118&longitude=-104.948906
-'''
+```
 * Retrieves the inforamtion about the placed animal at the given latitude and longitude
 * Input parameters: None
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'address', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
