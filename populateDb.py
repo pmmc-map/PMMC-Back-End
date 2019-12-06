@@ -1,6 +1,6 @@
 from app import app, db
 from app.survey import Question, Option
-from app.models import AnimalLocations, CityImages, Count
+from app.models import AnimalLocations, CityImages, Count, AdminLogin
 from questionsParser import addQuestions
 from optionsParser import addOptions
 from animalsParser import addAnimals
@@ -69,9 +69,28 @@ def addCount():
 
     print(Count.query.all())
 
+def addAdmin():
+    print("\n----------ADDING ADMIN LOGIN INFO TO DB----------\nEmptying current AdminLogin table...\n")
+    try:
+        AdminLogin.__table__.drop(db.engine)
+    except:
+        pass
+    db.create_all()
+
+    db.session.add(AdminLogin(googleID='109305513013129297314',name='Map Account', email='mapanalyticspmmc@gmail.com'))
+    db.session.commit()
+
+    db.session.add(AdminLogin(googleID='113684858932238811485',name='Pacific Marine Mammal Center', email='pacificmmceducation@gmail.com'))
+    db.session.commit()
+
+    # db.session.add(AdminLogin(googleID='109305513013129297314',name='Map Account', email='educationpmmc@gmail.com'))
+    db.session.commit()
+
+
 if __name__=="__main__":
     verboseAddQuestions()
     verboseAddOptions()
     verboseAddAnimals()
     addDefaultImage()
     addCount()
+    addAdmin()
