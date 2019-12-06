@@ -11,6 +11,8 @@
 - Save confirmed locations in the database
 - Send photos of each city back to the front end (as a blob, maybe b64 image?)
 - Save responses to survey questions in database
+- Retrieve lat/long from given animal address, and save it to database
+- Save rescued animals' pictures in database
 
 ### Local development
 To start Flask app for local development in Terminal:  

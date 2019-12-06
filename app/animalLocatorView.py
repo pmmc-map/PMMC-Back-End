@@ -41,21 +41,14 @@ def animalLocationsAddress():
         year = request.json["placement_year"]
         animal_type = request.json["animal_type"]
         animal_notes = request.json["animal_notes"]
-        animal_image = request.json["animal_images"]
-
-
-        image = None
-        if animal_image != "":
-            file = open(animal_image, "rb")
-            image = file.read()
             
 
-        animals_db = AnimalLocations(lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = image)
+        animals_db = AnimalLocations(lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes)
 
         db.session.add(animals_db)
         db.session.commit()
 
-        return jsonify(success=True, lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, animal_images = b64encode(image).decode('utf-8'), message = "Added to database")
+        return jsonify(success=True, lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes, message = "Added to database")
 
     if request.method == "GET":
         all_animals = []
