@@ -41,7 +41,13 @@ def animalLocationsAddress():
         year = request.json["placement_year"]
         animal_type = request.json["animal_type"]
         animal_notes = request.json["animal_notes"]
-            
+        animal_image = 'static/default_mammal.jpg'
+
+        try:
+            file = open(animal_image, "rb")
+            image = file.read()  
+        except:
+            return jsonify(success=False, message="default image not found")         
 
         animals_db = AnimalLocations(lat = lat, long = long, animal_name = name, location_name = location, placement_year = year, animal_type = animal_type, animal_notes = animal_notes)
 
@@ -77,7 +83,6 @@ def animalLocations():
         animal_type = request.json["animal_type"]
         animal_notes = request.json["animal_notes"]
         animal_image = request.json["animal_images"]
-
 
         image = None
         if animal_image != "":
