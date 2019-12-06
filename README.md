@@ -154,9 +154,9 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Response: Success
   
 ### POST /api/animal_locations/address
-* Adds the information about an animal that has been rescued and placed
+* Adds information about an animal that has been rescued and placed
 * This is used if the exact latitude and longitude of the location is unknown, only know the address of placement
-* Input paramets: JSON body with required parameters: 'animal_name', 'address', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
+* Input parameters: JSON body with required parameters: 'animal_name', 'address', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 * Response: Success along with JSON of added fields
 
 ```
@@ -172,7 +172,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
 ```
 
 ### GET /api/animal_locations/address
-* Retrieves the information about the placed animal
+* Retrieves information about the placed animal
 * Input parameters: None
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 
@@ -203,9 +203,9 @@ You can now access the 54.183.19.24 in a browser from any IP.
 ```
 
 ### POST /api/animal_locations
-* Adds the information about an animal that has been rescued and placed
+* Adds information about an animal that has been rescued and placed
 * This is used if the exact latitude and longitude of the location is known
-* Input paramets: JSON body with required parameters: 'animal_name', 'lat', 'long', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
+* Input parameters: JSON body with required parameters: 'animal_name', 'lat', 'long', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 * Response: Success along with JSON of added fields
 
 ```
@@ -230,6 +230,6 @@ You can now access the 54.183.19.24 in a browser from any IP.
 ```
 /api/animal_locations/lat_long?latitude=39.75118&longitude=-104.948906
 ```
-* Retrieves the inforamtion about the placed animal at the given latitude and longitude
+* Retrieves inforamtion about the placed animal at the given latitude and longitude
 * Input parameters: None
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'address', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
