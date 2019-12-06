@@ -7,18 +7,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 
 from app import views, models, animalLocatorView
+from app.models import AdminLogin
 
 db.create_all()
-
-try:
-    db.session.add(AdminLogin(googleID='109305513013129297314',name='Map Account', email='mapanalyticspmmc@gmail.com'))
-    db.session.commit()
-
-    db.session.add(AdminLogin(googleID='113684858932238811485',name='Pacific Marine Mammal Center', email='pacificmmceducation@gmail.com'))
-    db.session.commit()
-
-    # db.session.add(AdminLogin(googleID='109305513013129297314',name='Map Account', email='educationpmmc@gmail.com'))
-    db.session.commit()
-    
-except:
-    pass
