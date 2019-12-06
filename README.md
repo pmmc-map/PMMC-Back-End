@@ -210,14 +210,14 @@ You can now access the 54.183.19.24 in a browser from any IP.
 
 ```
 {
-	"animal_name": "Nick",
-    "animal_notes": "Now an adult male, has fathered pups",
-    "animal_type": "Sea lion",
-    "lat": 39.75118,
-    "long": -104.948906,
-    "location_name": "Denver Zoo",
-    "placement_year": 2006,
-    "animal_images": "PMMC_images/nick_by_wl.jpg2.jpg"
+  "animal_name": "Nick",
+  "lat": 39.75118,
+  "long": -104.948906,
+  "animal_notes": "Now an adult male, has fathered pups",
+  "animal_type": "Sea lion",
+  "location_name": "Denver Zoo",
+  "placement_year": 2006,
+  "animal_images": "PMMC_images/nick_by_wl.jpg2.jpg"
 }
 ```
 
