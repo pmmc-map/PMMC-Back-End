@@ -34,6 +34,33 @@ You can now access the 54.183.19.24 in a browser from any IP.
 
 ## Endpoint Documentation
 
+### Location endpoints
+
+#### GET /api/locations
+* Returns all pin locations in the database
+* Input parameters: No input parameters
+* Response: Json list of pin locations with `city`, `state`, `country`, `visit_date` and a `coodinates` object holding the `latitude` and `longitude`.
+
+#### POST /api/locations
+* Adds a new pin location to the database
+* Input parameter: Json body with `lat` and `long` variables.
+* Response: `success` response and `city`, `state`, `country`, `city_count`, `state_count`, and `country_count`. The `_count` attributes refer to the total number of pins also belonging to the newly selected city/state/country (for display purposes).
+
+#### GET /api/locations/counts
+* Returns count information about total and unique visitors.
+* Input parameters: No input params
+* Response: Json object with `success`, `total_visitors`, `unique_states`, and `unique_countries`. The `_unique` variables are used to display graphs and totals on the home display.
+
+#### GET /api/locations/\<city_name>
+* Returns json list of pin locations with the <city_name> `city` field.
+* Response: Json list of pin locations with `city`, `state`, `country`, `visit_date` and a `coodinates` object holding the `latitude` and `longitude`.
+
+
+#### GET /api/locations/\<state_name>
+* Returns json list of pin locations with the <state_name> `state` field.
+* Response: Json list of pin locations with `city`, `state`, `country`, `visit_date` and a `coodinates` object holding the `latitude` and `longitude`.
+
+
 ### Survey endpoints
 
 #### GET /api/questions
@@ -153,7 +180,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Input parameters: JSON body with `oid` value defined.
 * Response: Success
   
-### POST /api/animal_locations/address
+#### POST /api/animal_locations/address
 * Adds information about an animal that has been rescued and placed
 * This is used if the exact latitude and longitude of the location is unknown, only know the address of placement
 * Input parameters: JSON body with required parameters: 'animal_name', 'address', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
@@ -171,7 +198,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
 }
 ```
 
-### GET /api/animal_locations/address
+#### GET /api/animal_locations/address
 * Retrieves information about the placed animal
 * Input parameters: None
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
@@ -202,7 +229,7 @@ You can now access the 54.183.19.24 in a browser from any IP.
 }
 ```
 
-### POST /api/animal_locations
+#### POST /api/animal_locations
 * Adds information about an animal that has been rescued and placed
 * This is used if the exact latitude and longitude of the location is known
 * Input parameters: JSON body with required parameters: 'animal_name', 'lat', 'long', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
@@ -221,15 +248,53 @@ You can now access the 54.183.19.24 in a browser from any IP.
 }
 ```
 
-### GET /api/animal_locations
+#### GET /api/animal_locations
 * Retrieves the information about the placed animal
 * Input parameters: None
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'address', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
 
-### GET /api/animal_locations/lat_long
+#### GET /api/animal_locations/lat_long
 ```
 /api/animal_locations/lat_long?latitude=39.75118&longitude=-104.948906
 ```
 * Retrieves inforamtion about the placed animal at the given latitude and longitude
 * Input parameters: None
 * Response: JSON list of 'latitude', 'longitude', 'animal_name', 'address', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
+
+#### POST /admin/email
+* Sends email with survey, visitor, and donation information in CSV files
+* Input parameters: Json body with `email_address` defined
+* Response: `success` response
+
+#### GET /admin/count
+* Returns count objects in database (right now, only using this table to store the "rescues" count.
+* Input params: None
+* Response: Json list of `counts`, each `count` having a string `name` and integer `total`.
+
+#### POST /admin/count
+* Adds *new* count to the count table
+* Input params: Json body with string `name` and init integer `total` fields
+* Response: `success` response
+
+#### POST /admin/count/\<name>
+* Updates the count of an existing field (used to update rescue count on display)
+* Input params: the \<name> variable in url, json body with `new_total` integer field
+* Response: `success`
+
+#### GET /api/donation_redirect
+* Redirects the user to the PayPal donation page while saving a running count and timestamp to the database
+* Input params: None
+* Response: None (user is redirected)
+
+#### GET /api/donation_visits
+* Returns the donation visit information saved during redirection
+* Input params: None
+* Response: List of `donation_visits`, each with an `id` and `timestamp`
+
+#### GET /api/snap/location
+* Removes half of the database entries in the Location table
+* Input params: None
+* Response: `success`
+  
+
+
