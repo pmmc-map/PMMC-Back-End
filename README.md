@@ -11,6 +11,8 @@
 - Save confirmed locations in the database
 - Send photos of each city back to the front end (as a blob, maybe b64 image?)
 - Save responses to survey questions in database
+- Retrieve lat/long from given animal address, and save it to database
+- Save rescued animals' pictures in database
 
 ### Local development
 To start Flask app for local development in Terminal:  
@@ -151,4 +153,83 @@ You can now access the 54.183.19.24 in a browser from any IP.
 * Input parameters: JSON body with `oid` value defined.
 * Response: Success
   
+### POST /api/animal_locations/address
+* Adds the information about an animal that has been rescued and placed
+* This is used if the exact latitude and longitude of the location is unknown, only know the address of placement
+* Input paramets: JSON body with required parameters: 'animal_name', 'address', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
+* Response: Success along with JSON of added fields
 
+'''
+{
+  "animal_name": "Nick",
+  "address": "2300 Steele St, Denver, CO 80205",
+  "animal_notes": "Now an adult male, has fathered pups",
+  "animal_type": "Sea lion",
+  "location_name": "Denver Zoo",
+  "placement_year": 2006,
+  "animal_images": "PMMC_images/nick_by_wl.jpg2.jpg"
+}
+'''
+
+### GET /api/animal_locations/address
+* Retrieves the information about the placed animal
+* Input parameters: None
+* Response: JSON list of 'latitude', 'longitude', 'animal_name', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
+
+'''
+{
+  "animal_location": [
+    {
+      "animal_name": "Nick",
+      "animal_notes": "Now an adult male, has fathered pups",
+      "animal_type": "Sea lion",
+      "latitude": 39.75118,
+      "longitude": -104.948906,
+      "location_name": "Denver Zoo",
+      "placement_year": 2006,
+      "animal_images": "PMMC_images/nick_by_wl.jpg2.jpg"
+    },
+    {
+      "animal_name": "Sage",
+      "animal_notes": ",
+      "animal_type": "Sea lion",
+      "latitude": 30.422618,
+      "longitude": -89.025583,
+      "location_name": "Institute for Marine Mammal Studies in Louisiana",
+      "placement_year": 2013
+    }
+  ]
+}
+'''
+
+### POST /api/animal_locations
+* Adds the information about an animal that has been rescued and placed
+* This is used if the exact latitude and longitude of the location is known
+* Input paramets: JSON body with required parameters: 'animal_name', 'lat', 'long', 'location_name', optional parameters: 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
+* Response: Success along with JSON of added fields
+
+'''
+{
+	"animal_name": "Nick",
+    "animal_notes": "Now an adult male, has fathered pups",
+    "animal_type": "Sea lion",
+    "lat": 39.75118,
+    "long": -104.948906,
+    "location_name": "Denver Zoo",
+    "placement_year": 2006,
+    "animal_images": "PMMC_images/nick_by_wl.jpg2.jpg"
+}
+'''
+
+### GET /api/animal_locations
+* Retrieves the information about the placed animal
+* Input parameters: None
+* Response: JSON list of 'latitude', 'longitude', 'animal_name', 'address', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
+
+### GET /api/animal_locations/lat_long
+'''
+/api/animal_locations/lat_long?latitude=39.75118&longitude=-104.948906
+'''
+* Retrieves the inforamtion about the placed animal at the given latitude and longitude
+* Input parameters: None
+* Response: JSON list of 'latitude', 'longitude', 'animal_name', 'address', 'location_name', 'placement_year', 'animal_type', 'animal_notes', 'animal_images'
