@@ -30,6 +30,7 @@ def get_lat_long(address):
 
 # endpoint used if the latitude, longitude of the location is unknown
 @app.route('/api/animal_locations/address', methods=['GET', 'POST'])
+@cross_origin(supports_credentials=True)
 def animalLocationsAddress():
     if request.method == "POST":
         address = request.json["address"]
