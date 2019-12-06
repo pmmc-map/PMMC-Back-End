@@ -74,4 +74,4 @@ if __name__=="__main__":
     verboseAddOptions()
     verboseAddAnimals()
     addDefaultImage()
-    addCount()
+    #addCount()
