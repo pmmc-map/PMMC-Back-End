@@ -157,8 +157,8 @@ def location_counts():
     if request.args.get("country") and request.args.get("state"):
         selected_state = request.args.get("state")
         selected_country = request.args.get("country")
-        selected_state_count = Location.query.filter_by(state=selected_state).with_entities(Location.state).distinct().count()
-        selected_country_count = Location.query.filter_by(country=selected_country).with_entities(Location.state).distinct().count()
+        selected_state_count = Location.query.filter_by(state=selected_state).count()
+        selected_country_count = Location.query.filter_by(country=selected_country).count()
         return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unqiue_countries=country_count, this_state_count = selected_state_count, this_country_count = selected_country_count)
     return jsonify(success=True, total_visitors=total_visitors, unique_states = state_count, unqiue_countries=country_count)
 
