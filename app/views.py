@@ -76,7 +76,6 @@ def auth():
             if authorization: 
                 try:
                     resp = decode(authorization["Zi"]["id_token"], None, verify=False, algorithms=['HS256'])
-                    g.user = resp['sub']
                 except exceptions.DecodeError as identifier:
                     return json.dumps({'error': 'invalid authorization token'}), 403
                 
@@ -87,7 +86,7 @@ def auth():
 
                 rows = AdminLogin.query.filter_by(name=name, email=email, googleID=googleID).count()
                 print(rows)
-                return json.dumps({'authorized': rows != 1}), 200
+                return json.dumps({'authorized': rows != 0}), 200
             else:
                 return json.dumps({'authorized': 0}), 200
 
