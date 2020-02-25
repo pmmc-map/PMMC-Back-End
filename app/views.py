@@ -152,7 +152,7 @@ def locations():
 def location_counts():
     total_visitors = Location.query.count()
     country_count = Location.query.with_entities(Location.country).distinct().count()
-    state_count = Location.query.filter_by(country="USA").with_entities(Location.state).distinct().count()
+    state_count = Location.query.filter_by(country="United States of America").with_entities(Location.state).distinct().count()
     if request.args.get("country") and request.args.get("state"):
         selected_state = request.args.get("state")
         selected_country = request.args.get("country")
