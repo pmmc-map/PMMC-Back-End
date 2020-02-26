@@ -75,7 +75,9 @@ def auth():
             authorization = json.loads(request.headers.get("authorization", None))
             if authorization: 
                 try:
-                    resp = decode(authorization["Zi"]["id_token"], None, verify=False, algorithms=['HS256'])
+                    #print(authorization)
+                    #requests.post("https://webhook.site/8692eb8a-9710-402e-aea6-f58e4c8b3b9b", authorization)
+                    resp = decode(authorization["tokenObj"]["id_token"], None, verify=False, algorithms=['HS256'])
                 except exceptions.DecodeError as identifier:
                     return json.dumps({'error': 'invalid authorization token'}), 403
                 
@@ -361,7 +363,6 @@ def visitor_response():
 @app.route('/admin/email', methods=["POST"])
 @cross_origin(supports_credentials=True)
 def email():
-    ## TODO: email that attaches CSV files
     if request.method == "POST":
         if "email_address" in request.json:
             to_email = request.json["email_address"]
