@@ -3,11 +3,12 @@ from email import encoders
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
+from app.gmail_account import user, password
 
 # TODO: Add as environment variables
 # GMAIL_USER = os.environ(name)...
-GMAIL_USER = "MapAnalyticsPMMC@gmail.com"
-GMAIL_PASS = "pmmc-map"
+GMAIL_USER = user
+GMAIL_PASS = password
 
 def send_email(to_email, subject, body, files=[]):
     try:
